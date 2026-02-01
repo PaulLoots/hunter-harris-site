@@ -2,7 +2,7 @@
 
 A premium, mobile-first single-page music portfolio site showcasing Hunter Harris's releases with animated gradients, parallax effects, and seamless streaming platform integration.
 
-## Featuress
+## Features
 
 - **Full-viewport sections** with snap scrolling
 - **Animated gradients** derived from album artwork colors
