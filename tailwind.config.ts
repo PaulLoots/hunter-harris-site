@@ -24,6 +24,9 @@ const config: Config = {
           border: "rgba(255, 255, 255, 0.2)",
         },
       },
+      padding: {
+        safe: "env(safe-area-inset-bottom)",
+      },
     },
   },
   plugins: [],

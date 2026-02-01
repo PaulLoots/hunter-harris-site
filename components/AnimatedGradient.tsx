@@ -13,14 +13,14 @@ export default function AnimatedGradient({
   isActive = true,
 }: AnimatedGradientProps) {
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden">
+    <div className="absolute inset-0 -z-10 overflow-hidden bg-black">
       {/* Back layer - slowest, largest */}
       <motion.div
         className="absolute inset-0 gradient-layer-back"
         animate={{
           "--gradient-1": palette.darkMuted || palette.dominant,
           "--gradient-2": palette.darkVibrant || palette.dominant,
-          opacity: isActive ? 0.4 : 0.3,
+          opacity: isActive ? 0.5 : 0.4,
         } as any}
         transition={{ duration: 0.8, ease: "easeInOut" }}
       />
@@ -31,7 +31,7 @@ export default function AnimatedGradient({
         animate={{
           "--gradient-1": palette.muted || palette.dominant,
           "--gradient-2": palette.vibrant || palette.dominant,
-          opacity: isActive ? 0.6 : 0.5,
+          opacity: isActive ? 0.7 : 0.6,
         } as any}
         transition={{ duration: 0.8, ease: "easeInOut" }}
       />
@@ -42,7 +42,7 @@ export default function AnimatedGradient({
         animate={{
           "--gradient-1": palette.lightVibrant || palette.vibrant || palette.dominant,
           "--gradient-2": palette.lightMuted || palette.muted || palette.dominant,
-          opacity: isActive ? 0.8 : 0.6,
+          opacity: isActive ? 0.9 : 0.7,
         } as any}
         transition={{ duration: 0.8, ease: "easeInOut" }}
       />

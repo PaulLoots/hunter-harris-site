@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useMotionValue, animate } from "framer-motion";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, forwardRef, useImperativeHandle } from "react";
 import type { Release } from "@/lib/types";
 import CoverFlowItem from "./CoverFlowItem";
 
@@ -11,11 +11,15 @@ interface CoverFlowProps {
   initialIndex?: number;
 }
 
-export default function CoverFlow({
+export interface CoverFlowRef {
+  navigateToIndex: (index: number) => void;
+}
+
+const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
   releases,
   onActiveChange,
   initialIndex = 0,
-}: CoverFlowProps) {
+}, ref) => {
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const [hasEntered, setHasEntered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -70,6 +74,11 @@ export default function CoverFlow({
     [isDragging, updateActiveIndex, xPosition, activeIndex, normalizeIndex]
   );
 
+  // Expose navigateToIndex to parent via ref
+  useImperativeHandle(ref, () => ({
+    navigateToIndex,
+  }), [navigateToIndex]);
+
   // Calculate target based on velocity for momentum
   const calculateMomentumTarget = useCallback(
     (velocity: number, currentIndex: number) => {
@@ -109,8 +118,8 @@ export default function CoverFlow({
 
       // Calculate position based on drag offset from start position
       // Negative offset.x = swipe left = increase index
-      // Dramatically reduced sensitivity: 350px to move one item
-      const dragProgress = -info.offset.x / 350;
+      // Mobile-optimized sensitivity: 150px to move one item (very responsive)
+      const dragProgress = -info.offset.x / 150;
       const startPos = dragStartPosition.get();
       const newPosition = startPos + dragProgress;
 
@@ -151,10 +160,10 @@ export default function CoverFlow({
       // Smoother spring with less bounce
       animate(xPosition, targetIndex, {
         type: "spring",
-        stiffness: 200,
-        damping: 30,
-        mass: 1.0,
-        velocity: info.velocity.x / 200,
+        stiffness: 250,
+        damping: 28,
+        mass: 0.8,
+        velocity: info.velocity.x / 150,
         onUpdate: (latest) => {
           const snappedIndex = Math.round(latest);
           if (normalizeIndex(snappedIndex) !== activeIndex) {
@@ -194,7 +203,7 @@ export default function CoverFlow({
   const visibleItems = useMemo(() => {
     const items = [];
     const currentPos = Math.round(xPosition.get());
-    const range = 8; // Render ±8 items from current position for better coverage
+    const range = 12; // Render ±12 items from current position for better coverage
 
     for (let i = -range; i <= range; i++) {
       const position = currentPos + i;
@@ -212,17 +221,16 @@ export default function CoverFlow({
   }, [releases, normalizeIndex, activeIndex]); // Re-compute when activeIndex changes
 
   return (
-    <div
-      className="perspective-container relative w-full h-[40vh] sm:h-[50vh] overflow-visible"
+    <motion.div
+      className="perspective-container relative w-full h-full touch-pan-x"
+      style={{ overflow: 'visible' }}
       role="region"
       aria-label="Music releases carousel"
+      onPanStart={handlePanStart}
+      onPan={handlePan}
+      onPanEnd={handlePanEnd}
     >
-      <motion.div
-        className="preserve-3d flex items-center justify-center h-full relative"
-        onPanStart={handlePanStart}
-        onPan={handlePan}
-        onPanEnd={handlePanEnd}
-      >
+      <div className="preserve-3d flex items-center justify-center h-full relative" style={{ overflow: 'visible' }}>
         {visibleItems.map((item) => (
           <CoverFlowItem
             key={item.position}
@@ -235,7 +243,11 @@ export default function CoverFlow({
             onClick={() => navigateToIndex(item.position)}
           />
         ))}
-      </motion.div>
-    </div>
+      </div>
+    </motion.div>
   );
-}
+});
+
+CoverFlow.displayName = "CoverFlow";
+
+export default CoverFlow;

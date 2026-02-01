@@ -10,12 +10,23 @@
   --glass-border: rgba(255, 255, 255, 0.2);
 }
 
+html {
+  height: 100%;
+  /* Support for mobile browsers with dynamic viewport */
+  height: 100dvh;
+}
+
 body {
-  background-color: var(--background-base);
+  background: transparent;
   color: var(--text-primary);
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  overflow: hidden;
+  height: 100%;
+  /* Prevent overscroll bounce on mobile */
+  overscroll-behavior: none;
+  /* Prevent all default touch actions - we'll handle drag in the carousel */
+  touch-action: none;
 }
 
 /* Gradient Animation */

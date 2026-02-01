@@ -54,7 +54,7 @@ export default function StreamingLinks({
   // Show "Coming Soon" badge if no streaming links available
   if (platforms.length === 0) {
     return (
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center" style={{ height: '120px' }}>
         <motion.div
           className="px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/30 rounded-full text-white/90 font-medium text-sm uppercase tracking-widest"
           initial={{ opacity: 0, y: 20 }}
@@ -74,6 +74,7 @@ export default function StreamingLinks({
           ? "flex-col gap-3 w-full max-w-sm"
           : "flex-row gap-4 flex-wrap justify-center"
       }`}
+      style={{ height: '120px' }}
     >
       {platforms.map((platform, index) => (
         <motion.a

@@ -128,6 +128,7 @@ export default function CoverFlowItem({
             fill
             sizes="(max-width: 768px) 60vw, 40vw"
             className="rounded-xl shadow-2xl object-cover no-drag pointer-events-none"
+            loading={Math.abs(index - activeIndex) <= 6 ? "eager" : "lazy"}
             priority={index === 0}
             draggable={false}
           />
