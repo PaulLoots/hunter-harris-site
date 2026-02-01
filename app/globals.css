@@ -56,11 +56,91 @@ body {
   will-change: transform;
 }
 
+/* CoverFlow 3D Styles */
+.perspective-container {
+  perspective: 1200px;
+  perspective-origin: center center;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+/* Multi-layer Parallax Gradients */
+@keyframes gradientShiftSlow {
+  0%, 100% {
+    background-position: 0% 50%;
+    transform: scale(1.2) rotate(0deg);
+  }
+  50% {
+    background-position: 100% 50%;
+    transform: scale(1.3) rotate(5deg);
+  }
+}
+
+@keyframes gradientShiftMedium {
+  0%, 100% {
+    background-position: 20% 40%;
+    transform: scale(1.1) rotate(0deg);
+  }
+  50% {
+    background-position: 80% 60%;
+    transform: scale(1.2) rotate(-3deg);
+  }
+}
+
+@keyframes gradientShiftFast {
+  0%, 100% {
+    background-position: 40% 30%;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    background-position: 60% 70%;
+    transform: scale(1.1) rotate(2deg);
+  }
+}
+
+.gradient-layer-back {
+  background: radial-gradient(ellipse at 30% 20%, var(--gradient-1) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 80%, var(--gradient-2) 0%, transparent 60%);
+  background-size: 300% 300%;
+  animation: gradientShiftSlow 25s ease-in-out infinite;
+  will-change: transform;
+}
+
+.gradient-layer-middle {
+  background: radial-gradient(ellipse at 50% 50%, var(--gradient-1) 0%, transparent 50%);
+  background-size: 250% 250%;
+  animation: gradientShiftMedium 17s ease-in-out infinite;
+  animation-delay: -3s;
+  will-change: transform;
+}
+
+.gradient-layer-front {
+  background: radial-gradient(circle at 40% 60%, var(--gradient-1) 0%, transparent 40%),
+              radial-gradient(circle at 60% 40%, var(--gradient-2) 0%, transparent 40%);
+  background-size: 200% 200%;
+  animation: gradientShiftFast 12s ease-in-out infinite;
+  animation-delay: -7s;
+  will-change: transform;
+}
+
 /* Disable animations for users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .animated-gradient {
-    animation: none;
+  .animated-gradient,
+  .gradient-layer-back,
+  .gradient-layer-middle,
+  .gradient-layer-front {
+    animation: none !important;
     transform: none;
+  }
+
+  .preserve-3d {
+    transform-style: flat;
+  }
+
+  .perspective-container {
+    perspective: none;
   }
 
   * {
@@ -97,4 +177,20 @@ html {
 *:focus-visible {
   outline: 2px solid rgba(255, 255, 255, 0.8);
   outline-offset: 2px;
+}
+
+/* Prevent text selection and image dragging for smooth interactions */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.no-drag {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
 }
