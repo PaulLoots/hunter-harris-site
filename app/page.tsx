@@ -90,16 +90,24 @@ export default function Home() {
         />
       </div>
 
-      {/* Release Info & Streaming Links - Absolutely positioned with fixed dimensions */}
+      {/* Bottom fade gradient - covers lower CoverFlow items for readability */}
       <div
-        className="fixed left-0 right-0 z-10 flex flex-col items-center px-6 pointer-events-none"
+        className="fixed left-0 right-0 bottom-0 pointer-events-none"
         style={{
-          top: 'calc(3rem + 12px + min(55vh, 480px) + 1.5rem)',
-          bottom: 'calc(3rem + env(safe-area-inset-bottom))',
-          minHeight: '240px'
+          zIndex: 15,
+          top: '50%',
+          background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.35) 25%, rgba(0,0,0,0.65) 55%, rgba(0,0,0,0.85) 100%)',
+        }}
+      />
+
+      {/* Release Info & Streaming Links - anchored to bottom */}
+      <div
+        className="fixed left-0 right-0 bottom-0 z-20 flex flex-col items-center pointer-events-none"
+        style={{
+          paddingBottom: 'calc(2.5rem + env(safe-area-inset-bottom))',
         }}
       >
-        <div className="flex flex-col items-center gap-3 sm:gap-4 pointer-events-auto w-full max-w-sm">
+        <div className="flex flex-col items-center gap-2 pointer-events-auto w-full max-w-sm px-6">
           <ReleaseInfo release={activeRelease} direction={direction} />
           <StreamingLinks links={activeRelease.streamingLinks} variant="stacked" />
         </div>

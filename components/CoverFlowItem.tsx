@@ -30,49 +30,60 @@ export default function CoverFlowItem({
   const blurFilter = "blur(0px)";
 
   // Calculate transform based on continuous offset for real-time tracking
-  // Vertical CoverFlow: items above/below center with rotateX for depth
+  // Vertical CoverFlow: items stack behind active item with rotateX tilt
+  // IMPORTANT: All values must be fully continuous (no jumps at boundaries)
+  // to prevent visual popping during mid-scroll transitions
   const transform = useTransform(continuousOffset, (offset) => {
     const absOffset = Math.abs(offset);
+    const sign = offset < 0 ? -1 : 1;
 
-    // Progressive vertical spacing - wider for center items, tighter for periphery
+    // Vertical spacing - continuous curve with no jumps
+    // offset 0→0%, 1→58%, 2→95%, 3→120%, 4+→+25% each
     let translateY = 0;
-    if (absOffset <= 2) {
-      translateY = offset * 45;
+    if (absOffset <= 1) {
+      translateY = absOffset * 58;
+    } else if (absOffset <= 2) {
+      translateY = 58 + (absOffset - 1) * 37;
     } else {
-      translateY = offset * 28;
+      translateY = 95 + (absOffset - 2) * 25;
     }
+    translateY = translateY * sign;
 
-    // Progressive Z translation - items stack deeper as they go back
+    // Z translation - continuous interpolation, shallow depth
+    // offset 0→0, 1→-80, 2→-120, 3+→-160
     let translateZ = 0;
     if (absOffset <= 1) {
-      translateZ = absOffset * -180;
+      translateZ = absOffset * -80;
     } else if (absOffset <= 2) {
-      translateZ = -180 + (absOffset - 1) * -140;
+      translateZ = -80 + (absOffset - 1) * -40;
+    } else if (absOffset <= 3) {
+      translateZ = -120 + (absOffset - 2) * -40;
     } else {
-      translateZ = -400;
+      translateZ = -160;
     }
 
-    // Progressive rotateX - items tilt as they go back
-    // Items above (offset < 0): tilt backward (+rotateX)
-    // Items below (offset > 0): tilt forward (-rotateX)
+    // rotateX - front-loaded curve so items tilt away quickly
+    // Continuous: offset 0→0°, 0.5→60°, 1→65°, 2→72°, 3+→75°
     let rotateX = 0;
-    if (absOffset <= 1) {
-      rotateX = absOffset * 55;
+    if (absOffset <= 0.5) {
+      rotateX = absOffset * 120;
+    } else if (absOffset <= 1) {
+      rotateX = 60 + (absOffset - 0.5) * 10;
     } else if (absOffset <= 2) {
-      rotateX = 55 + (absOffset - 1) * 25;
+      rotateX = 65 + (absOffset - 1) * 7;
     } else {
-      rotateX = 85;
+      rotateX = Math.min(75, 72 + (absOffset - 2) * 3);
     }
     rotateX = rotateX * (offset < 0 ? -1 : 1);
 
-    // Progressive scale
+    // Scale - continuous: offset 0→1.0, 1→0.92, 2→0.87, 3+→0.85
     let scale = 1;
     if (absOffset <= 1) {
-      scale = 1 - absOffset * 0.1;
+      scale = 1 - absOffset * 0.08;
     } else if (absOffset <= 2) {
-      scale = 0.9 - (absOffset - 1) * 0.08;
+      scale = 0.92 - (absOffset - 1) * 0.05;
     } else {
-      scale = 0.75;
+      scale = Math.max(0.85, 0.87 - (absOffset - 2) * 0.02);
     }
 
     return `translateY(${translateY}%) translateZ(${translateZ}px) rotateX(${rotateX}deg) scale(${scale})`;

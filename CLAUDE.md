@@ -113,7 +113,7 @@ page.tsx
 - **Drag sensitivity**: 150px vertical drag = 1 item movement
 - **Smart snap**: Ignores momentum for small drags (<0.4 items or <800px/s velocity)
 - **Velocity-based momentum**: Fast flicks skip 2-4 items, gentle swipes move 1 item
-- **Spring physics**: stiffness 200, damping 30, mass 1.0 for smooth settling
+- **Spring physics**: stiffness 250, damping 28, mass 0.8 for snappy settling
 - **Keyboard support**: Arrow keys navigate up/down
 - **Scroll wheel support**: Mouse wheel navigates between releases on desktop
 - **Tap navigation**: Tap top 25% of screen for previous, bottom 25% for next
@@ -423,8 +423,31 @@ A change is successful if:
 - ✅ No layout shift occurs
 - ✅ Progressive transforms create depth perception
 
+## Recent Updates (February 2025)
+
+### Vertical CoverFlow Conversion
+- Converted from horizontal to vertical scrolling (swipe up/down)
+- All transforms swapped: translateX→translateY, rotateY→rotateX
+- rotateX sign: items above/below tilt AWAY from center (stack behind active item)
+- Added scroll wheel navigation for desktop (accumulate deltaY, debounce 50ms)
+- Keyboard: ArrowUp/ArrowDown instead of ArrowLeft/ArrowRight
+- Tap zones: top/bottom 25% instead of left/right 30%
+- Direction type: "up"/"down" instead of "left"/"right"
+
+### Artwork & Layout
+- Artwork size increased: 85vw mobile (was 60vw), 50vw desktop (was 40vw)
+- Max sizes: 480px mobile (was 320px), 520px desktop (was 400px)
+- Carousel height: min(55vh, 480px) (was min(50vh, 400px))
+- Fixed positioning with overflow visible for 3D transforms
+
+### Layout Stability
+- All major sections use fixed positioning to prevent layout shifts
+- Responsive clamp()/min() sizing for stability across devices
+- iOS safe area inset support throughout
+- touch-action: none prevents scroll interference
+
 ---
 
-**Last Updated:** February 2025
+**Last Updated:** February 2, 2025
 **Maintained By:** Hunter Harris Team
 **For AI Assistants:** This file provides context for working on the codebase. Always read this before making significant changes.

@@ -34,21 +34,20 @@ export default function ReleaseInfo({ release, direction = "down" }: ReleaseInfo
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: exitY }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="text-center py-3 sm:py-6 no-select min-h-[140px] sm:min-h-[160px] flex flex-col justify-center"
+        className="text-center py-1 no-select flex flex-col justify-center items-center gap-0.5"
         aria-live="polite"
         aria-atomic="true"
       >
-        <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-white drop-shadow-lg mb-2">
+        <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-white drop-shadow-lg leading-tight">
           {release.title}
         </h2>
         {release.subtitle && (
-          <p className="text-lg sm:text-xl text-white/80 mb-2">
+          <p className="text-sm sm:text-base text-white/60 leading-snug max-w-[280px]">
             {release.subtitle}
           </p>
         )}
-        <p className="text-sm uppercase tracking-widest font-medium text-white/70">
-          {getReleaseTypeLabel(release.type)} •{" "}
-          {formatReleaseDate(release.releaseDate)}
+        <p className="text-[11px] uppercase tracking-[0.2em] font-medium text-white/40 mt-1">
+          {getReleaseTypeLabel(release.type)} · {formatReleaseDate(release.releaseDate)}
         </p>
       </motion.div>
     </AnimatePresence>

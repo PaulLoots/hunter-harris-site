@@ -54,9 +54,9 @@ export default function StreamingLinks({
   // Show "Coming Soon" badge if no streaming links available
   if (platforms.length === 0) {
     return (
-      <div className="flex items-center justify-center" style={{ height: '120px' }}>
+      <div className="flex items-center justify-center">
         <motion.div
-          className="px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/30 rounded-full text-white/90 font-medium text-sm uppercase tracking-widest"
+          className="px-5 py-2 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full text-white/60 font-medium text-xs uppercase tracking-widest"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
@@ -71,10 +71,9 @@ export default function StreamingLinks({
     <div
       className={`flex ${
         variant === "stacked"
-          ? "flex-col gap-3 w-full max-w-sm"
+          ? "flex-row gap-2 w-full max-w-sm justify-center"
           : "flex-row gap-4 flex-wrap justify-center"
       }`}
-      style={{ height: '120px' }}
     >
       {platforms.map((platform, index) => (
         <motion.a
@@ -83,7 +82,7 @@ export default function StreamingLinks({
           target="_blank"
           rel="noopener noreferrer"
           aria-label={platform.label}
-          className="flex items-center justify-center gap-3 h-[56px] px-6 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white font-medium text-base transition-all duration-200 hover:bg-white/25 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-white/50"
+          className="flex items-center justify-center gap-2 h-[44px] px-5 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full text-white/90 font-medium text-sm transition-all duration-200 hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-white/50"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: index * 0.1 }}
