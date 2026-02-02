@@ -105,12 +105,12 @@ page.tsx
 
 ### 2. Infinite Loop Scrolling
 - **Modulo arithmetic**: Index wraps using `(index % releases.length)`
-- **Sliding window rendering**: Renders ±8 items from current position
+- **Sliding window rendering**: Renders ±12 items from current position
 - **No boundaries**: Can scroll infinitely in either direction
 - **Continuous position tracking**: Uses Framer Motion `MotionValue` for real-time drag updates
 
 ### 3. Gesture & Momentum Physics
-- **Drag sensitivity**: 350px vertical drag = 1 item movement
+- **Drag sensitivity**: 150px vertical drag = 1 item movement
 - **Smart snap**: Ignores momentum for small drags (<0.4 items or <800px/s velocity)
 - **Velocity-based momentum**: Fast flicks skip 2-4 items, gentle swipes move 1 item
 - **Spring physics**: stiffness 200, damping 30, mass 1.0 for smooth settling
@@ -135,7 +135,7 @@ page.tsx
 
 ### 6. Performance Optimizations
 - First CoverFlow item: `priority={true}` (LCP)
-- Only ±8 items rendered at a time (sliding window)
+- Only ±12 items rendered at a time (sliding window)
 - GPU-accelerated transforms (translateY/Z, rotateX, scale)
 - MotionValue prevents React re-renders during drag
 - `will-change: transform` on active elements
@@ -275,7 +275,7 @@ Default styles are mobile. Use Tailwind breakpoints:
 - Confirm `artworkPath` matches actual file
 - Check file extensions (.jpg recommended)
 - Ensure images are in `public/artwork/`
-- Verify render range is ±8 items (check `CoverFlow.tsx` line 197)
+- Verify render range is ±12 items (check `CoverFlow.tsx`)
 
 ### CoverFlow Not Dragging Smoothly
 - Check vertical drag sensitivity in `CoverFlow.tsx` (line 113)
