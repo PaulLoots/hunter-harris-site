@@ -30,21 +30,19 @@ export default function CoverFlowItem({
   const blurFilter = "blur(0px)";
 
   // Calculate transform based on continuous offset for real-time tracking
-  // Use smooth interpolation with progressive stacking for CoverFlow effect
+  // Vertical CoverFlow: items above/below center with rotateX for depth
   const transform = useTransform(continuousOffset, (offset) => {
     const absOffset = Math.abs(offset);
 
-    // Progressive horizontal spacing - wider for center items, tighter for periphery
-    // offset ±1, ±2: 45% (original spacing), offset ±3+: 28% (tighter stacking)
-    let translateX = 0;
+    // Progressive vertical spacing - wider for center items, tighter for periphery
+    let translateY = 0;
     if (absOffset <= 2) {
-      translateX = offset * 45;  // Center items: comfortable spacing
+      translateY = offset * 45;
     } else {
-      translateX = offset * 28;  // Peripheral items: tight stacking
+      translateY = offset * 28;
     }
 
     // Progressive Z translation - items stack deeper as they go back
-    // offset 0: 0px, offset 1: -180px, offset 2: -320px, offset 3+: -400px
     let translateZ = 0;
     if (absOffset <= 1) {
       translateZ = absOffset * -180;
@@ -54,20 +52,20 @@ export default function CoverFlowItem({
       translateZ = -400;
     }
 
-    // Progressive rotation - items rotate more as they go back
-    // offset 0: 0deg, offset 1: 55deg, offset 2: 80deg, offset 3+: 85deg
-    let rotateY = 0;
+    // Progressive rotateX - items tilt as they go back
+    // Items above (offset < 0): tilt backward (+rotateX)
+    // Items below (offset > 0): tilt forward (-rotateX)
+    let rotateX = 0;
     if (absOffset <= 1) {
-      rotateY = absOffset * 55;
+      rotateX = absOffset * 55;
     } else if (absOffset <= 2) {
-      rotateY = 55 + (absOffset - 1) * 25;
+      rotateX = 55 + (absOffset - 1) * 25;
     } else {
-      rotateY = 85;
+      rotateX = 85;
     }
-    rotateY = rotateY * (offset < 0 ? 1 : -1);
+    rotateX = rotateX * (offset < 0 ? -1 : 1);
 
-    // Progressive scale - keep items larger for tight CoverFlow look
-    // offset 0: 1.0, offset 1: 0.9, offset 2: 0.82, offset 3+: 0.75
+    // Progressive scale
     let scale = 1;
     if (absOffset <= 1) {
       scale = 1 - absOffset * 0.1;
@@ -77,7 +75,7 @@ export default function CoverFlowItem({
       scale = 0.75;
     }
 
-    return `translateX(${translateX}%) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`;
+    return `translateY(${translateY}%) translateZ(${translateZ}px) rotateX(${rotateX}deg) scale(${scale})`;
   });
 
   // Keep all items fully visible - no opacity fade
@@ -89,11 +87,11 @@ export default function CoverFlowItem({
   const entryVariants = {
     hidden: {
       opacity: 0,
-      transform: "translateX(120%) translateZ(-200px) rotateY(60deg) scale(0.5)",
+      transform: "translateY(120%) translateZ(-200px) rotateX(-60deg) scale(0.5)",
     },
     visible: {
       opacity: 1,
-      transform: "translateX(0%) translateZ(0px) rotateY(0deg) scale(1)",
+      transform: "translateY(0%) translateZ(0px) rotateX(0deg) scale(1)",
       transition: {
         type: "spring",
         stiffness: 200,
@@ -121,12 +119,12 @@ export default function CoverFlowItem({
         onClick={onClick}
         aria-current={isActive ? "true" : "false"}
       >
-        <div className="relative w-[60vw] max-w-[320px] md:w-[40vw] md:max-w-[400px] aspect-square">
+        <div className="relative w-[85vw] max-w-[480px] md:w-[50vw] md:max-w-[520px] aspect-square">
           <Image
             src={release.artworkPath}
             alt={`${release.title} artwork`}
             fill
-            sizes="(max-width: 768px) 60vw, 40vw"
+            sizes="(max-width: 768px) 85vw, 50vw"
             className="rounded-xl shadow-2xl object-cover no-drag pointer-events-none"
             loading={Math.abs(index - activeIndex) <= 6 ? "eager" : "lazy"}
             priority={index === 0}

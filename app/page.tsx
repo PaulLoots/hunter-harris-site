@@ -11,14 +11,14 @@ import SocialFooter from "@/components/SocialFooter";
 
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [direction, setDirection] = useState<"left" | "right">("right");
+  const [direction, setDirection] = useState<"up" | "down">("down");
   const prevIndexRef = useRef(0);
   const coverFlowRef = useRef<CoverFlowRef>(null);
   const activeRelease = releases[activeIndex];
 
   const handleActiveChange = (index: number) => {
     // Determine direction based on index change
-    const newDirection = index > prevIndexRef.current ? "right" : "left";
+    const newDirection = index > prevIndexRef.current ? "down" : "up";
     setDirection(newDirection);
     prevIndexRef.current = index;
     setActiveIndex(index);
@@ -30,17 +30,17 @@ export default function Home() {
       return;
     }
 
-    const screenWidth = window.innerWidth;
-    const tapX = e.clientX;
-    const tapZone = screenWidth * 0.3; // 30% of screen width on each side
+    const screenHeight = window.innerHeight;
+    const tapY = e.clientY;
+    const tapZone = screenHeight * 0.25; // 25% of screen height on top/bottom
 
-    if (tapX < tapZone) {
-      // Tapped on left side - go to previous
+    if (tapY < tapZone) {
+      // Tapped on top - go to previous
       if (coverFlowRef.current) {
         coverFlowRef.current.navigateToIndex(activeIndex - 1);
       }
-    } else if (tapX > screenWidth - tapZone) {
-      // Tapped on right side - go to next
+    } else if (tapY > screenHeight - tapZone) {
+      // Tapped on bottom - go to next
       if (coverFlowRef.current) {
         coverFlowRef.current.navigateToIndex(activeIndex + 1);
       }
@@ -78,7 +78,7 @@ export default function Home() {
         className="fixed left-0 right-0 z-10 flex items-center justify-center px-4"
         style={{
           top: 'calc(3rem + 12px)',
-          height: 'min(50vh, 400px)',
+          height: 'min(55vh, 480px)',
           overflow: 'visible'
         }}
       >
@@ -94,7 +94,7 @@ export default function Home() {
       <div
         className="fixed left-0 right-0 z-10 flex flex-col items-center px-6 pointer-events-none"
         style={{
-          top: 'calc(3rem + 12px + min(50vh, 400px) + 1.5rem)',
+          top: 'calc(3rem + 12px + min(55vh, 480px) + 1.5rem)',
           bottom: 'calc(3rem + env(safe-area-inset-bottom))',
           minHeight: '240px'
         }}

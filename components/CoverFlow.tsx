@@ -117,9 +117,9 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
       if (!isDragging) return;
 
       // Calculate position based on drag offset from start position
-      // Negative offset.x = swipe left = increase index
+      // Negative offset.y = swipe up = increase index (next item)
       // Mobile-optimized sensitivity: 150px to move one item (very responsive)
-      const dragProgress = -info.offset.x / 150;
+      const dragProgress = -info.offset.y / 150;
       const startPos = dragStartPosition.get();
       const newPosition = startPos + dragProgress;
 
@@ -148,11 +148,11 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
 
       // If drag distance is small (< 0.4 items) OR velocity is low, just snap to nearest
       // This prevents accidental flicks when user just taps or barely moves
-      if (dragDistance < 0.4 || Math.abs(info.velocity.x) < 800) {
+      if (dragDistance < 0.4 || Math.abs(info.velocity.y) < 800) {
         targetIndex = Math.round(currentPosition);
       } else {
         // Use momentum for larger, faster drags
-        targetIndex = calculateMomentumTarget(info.velocity.x, Math.round(currentPosition));
+        targetIndex = calculateMomentumTarget(info.velocity.y, Math.round(currentPosition));
       }
 
       // No clamping for infinite scroll
@@ -163,7 +163,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
         stiffness: 250,
         damping: 28,
         mass: 0.8,
-        velocity: info.velocity.x / 150,
+        velocity: info.velocity.y / 150,
         onUpdate: (latest) => {
           const snappedIndex = Math.round(latest);
           if (normalizeIndex(snappedIndex) !== activeIndex) {
@@ -180,14 +180,14 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
     [activeIndex, xPosition, dragStartPosition, calculateMomentumTarget, updateActiveIndex, normalizeIndex]
   );
 
-  // Keyboard navigation
+  // Keyboard navigation (up/down arrows)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") {
+      if (e.key === "ArrowUp") {
         e.preventDefault();
         const currentPos = Math.round(xPosition.get());
         navigateToIndex(currentPos - 1);
-      } else if (e.key === "ArrowRight") {
+      } else if (e.key === "ArrowDown") {
         e.preventDefault();
         const currentPos = Math.round(xPosition.get());
         navigateToIndex(currentPos + 1);
@@ -196,6 +196,36 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [navigateToIndex, xPosition]);
+
+  // Scroll wheel navigation
+  useEffect(() => {
+    let wheelTimeout: ReturnType<typeof setTimeout> | null = null;
+    let accumulatedDelta = 0;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+
+      accumulatedDelta += e.deltaY;
+
+      if (wheelTimeout) clearTimeout(wheelTimeout);
+
+      wheelTimeout = setTimeout(() => {
+        // ~120px of wheel delta = 1 item (standard mouse wheel notch)
+        const items = Math.max(-4, Math.min(4, Math.round(accumulatedDelta / 120)));
+        if (items !== 0) {
+          const currentPos = Math.round(xPosition.get());
+          navigateToIndex(currentPos + items);
+        }
+        accumulatedDelta = 0;
+      }, 50);
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+      if (wheelTimeout) clearTimeout(wheelTimeout);
+    };
   }, [navigateToIndex, xPosition]);
 
   // Generate visible items for infinite scrolling
@@ -222,7 +252,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
 
   return (
     <motion.div
-      className="perspective-container relative w-full h-full touch-pan-x"
+      className="perspective-container relative w-full h-full"
       style={{ overflow: 'visible' }}
       role="region"
       aria-label="Music releases carousel"

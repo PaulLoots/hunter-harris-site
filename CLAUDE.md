@@ -16,12 +16,12 @@ This is a premium, mobile-first music portfolio website for pop artist **Hunter 
 - **Inter font** via next/font
 
 ### Core Experience
-- **Horizontal CoverFlow carousel** with 3D perspective transforms
+- **Vertical CoverFlow carousel** with 3D perspective transforms
 - **Infinite loop scrolling** (wraps around, no start/finish)
-- **Touch-optimized drag gestures** with momentum physics
+- **Touch-optimized vertical drag gestures** with momentum physics
 - **Multi-layer parallax gradients** derived from artwork colors
 - **Signature logo** in header (SVG)
-- **Directional release info** that slides left/right based on navigation
+- **Directional release info** that slides up/down based on navigation
 - **Prominent streaming links** (Spotify, Apple Music only)
 
 ## Project Structure
@@ -101,7 +101,7 @@ page.tsx
 - **Rotation**: 0° (center) → 55° (±1) → 80° (±2) → 85° (±3+)
 - **Depth**: translateZ 0px (center) → -180px (±1) → -320px (±2) → -400px (±3+)
 - **Scale**: 1.0 (center) → 0.9 (±1) → 0.82 (±2) → 0.75 (±3+)
-- **Entry animation**: Items "deal in" from right on page load with staggered timing
+- **Entry animation**: Items "deal in" from below on page load with staggered timing
 
 ### 2. Infinite Loop Scrolling
 - **Modulo arithmetic**: Index wraps using `(index % releases.length)`
@@ -110,11 +110,13 @@ page.tsx
 - **Continuous position tracking**: Uses Framer Motion `MotionValue` for real-time drag updates
 
 ### 3. Gesture & Momentum Physics
-- **Drag sensitivity**: 350px horizontal drag = 1 item movement
+- **Drag sensitivity**: 350px vertical drag = 1 item movement
 - **Smart snap**: Ignores momentum for small drags (<0.4 items or <800px/s velocity)
 - **Velocity-based momentum**: Fast flicks skip 2-4 items, gentle swipes move 1 item
 - **Spring physics**: stiffness 200, damping 30, mass 1.0 for smooth settling
-- **Keyboard support**: Arrow keys navigate left/right
+- **Keyboard support**: Arrow keys navigate up/down
+- **Scroll wheel support**: Mouse wheel navigates between releases on desktop
+- **Tap navigation**: Tap top 25% of screen for previous, bottom 25% for next
 
 ### 4. Multi-Layer Parallax Gradients
 - **3 layers** with different animation speeds:
@@ -134,7 +136,7 @@ page.tsx
 ### 6. Performance Optimizations
 - First CoverFlow item: `priority={true}` (LCP)
 - Only ±8 items rendered at a time (sliding window)
-- GPU-accelerated transforms (translateX/Z, rotateY, scale)
+- GPU-accelerated transforms (translateY/Z, rotateX, scale)
 - MotionValue prevents React re-renders during drag
 - `will-change: transform` on active elements
 
@@ -188,16 +190,16 @@ Edit `components/CoverFlowItem.tsx` transform calculation:
 ```typescript
 // Progressive spacing
 if (absOffset <= 2) {
-  translateX = offset * 45;  // Close items
+  translateY = offset * 45;  // Close items
 } else {
-  translateX = offset * 28;  // Peripheral items
+  translateY = offset * 28;  // Peripheral items
 }
 ```
 
 ### Adjust Drag Sensitivity
 Edit `components/CoverFlow.tsx` handlePan:
 ```typescript
-const dragProgress = -info.offset.x / 350; // Increase = less sensitive
+const dragProgress = -info.offset.y / 350; // Increase = less sensitive
 ```
 
 ### Adjust Gradient Animation Speed
@@ -276,7 +278,7 @@ Default styles are mobile. Use Tailwind breakpoints:
 - Verify render range is ±8 items (check `CoverFlow.tsx` line 197)
 
 ### CoverFlow Not Dragging Smoothly
-- Check drag sensitivity in `CoverFlow.tsx` (line 113)
+- Check vertical drag sensitivity in `CoverFlow.tsx` (line 113)
 - Verify spring physics values (stiffness: 200, damping: 30)
 - Test on real device (touch may differ from mouse)
 - Ensure no CSS `pointer-events: none` on carousel

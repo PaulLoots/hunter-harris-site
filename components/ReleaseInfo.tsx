@@ -5,7 +5,7 @@ import type { Release } from "@/lib/types";
 
 interface ReleaseInfoProps {
   release: Release;
-  direction?: "left" | "right";
+  direction?: "up" | "down";
 }
 
 const formatReleaseDate = (dateString: string) => {
@@ -20,19 +20,19 @@ const getReleaseTypeLabel = (type: Release["type"]) => {
   return type.charAt(0).toUpperCase() + type.slice(1);
 };
 
-export default function ReleaseInfo({ release, direction = "right" }: ReleaseInfoProps) {
+export default function ReleaseInfo({ release, direction = "down" }: ReleaseInfoProps) {
   // Determine slide direction based on navigation
   const slideDistance = 20;
-  const initialX = direction === "right" ? slideDistance : -slideDistance;
-  const exitX = direction === "right" ? -slideDistance : slideDistance;
+  const initialY = direction === "down" ? slideDistance : -slideDistance;
+  const exitY = direction === "down" ? -slideDistance : slideDistance;
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
         key={release.id}
-        initial={{ opacity: 0, x: initialX }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: exitX }}
+        initial={{ opacity: 0, y: initialY }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: exitY }}
         transition={{ duration: 0.3, ease: "easeOut" }}
         className="text-center py-3 sm:py-6 no-select min-h-[140px] sm:min-h-[160px] flex flex-col justify-center"
         aria-live="polite"
