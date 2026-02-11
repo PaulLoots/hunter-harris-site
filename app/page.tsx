@@ -6,6 +6,7 @@ import Image from "next/image";
 import { releases } from "@/lib/releases.generated";
 import CoverFlow, { type CoverFlowRef, type IntroPhase } from "@/components/CoverFlow";
 import AnimatedGradient from "@/components/AnimatedGradient";
+import EdgeGradient from "@/components/EdgeGradient";
 import ReleaseInfo from "@/components/ReleaseInfo";
 import StreamingLinks from "@/components/StreamingLinks";
 import SocialFooter from "@/components/SocialFooter";
@@ -64,6 +65,10 @@ export default function Home() {
         <AnimatedGradient palette={activeRelease.palette} introPhase={introPhase} />
       </div>
 
+      {/* Dynamic edge gradients for text legibility */}
+      <EdgeGradient position="top" palette={activeRelease.palette} />
+      <EdgeGradient position="bottom" palette={activeRelease.palette} />
+
       {/* Header - fixed position */}
       <header className="fixed top-0 left-0 right-0 z-20 py-3 sm:py-4 no-select pointer-events-none">
         <motion.div
@@ -86,14 +91,16 @@ export default function Home() {
         </motion.div>
       </header>
 
-      {/* Main content wrapper - switches from stacked to side-by-side at lg or landscape */}
-      <div className="fixed inset-0 z-10 flex flex-col lg:flex-row lg:items-center lg:justify-center lg:gap-16 xl:gap-24 lg:px-8 landscape:flex-row landscape:items-center landscape:justify-center landscape:gap-12 landscape:px-6">
-
-        {/* CoverFlow section */}
+      {/* CoverFlow section - below edge gradients so blur works on artwork */}
+      <div className="fixed inset-0 z-10 flex items-center justify-center px-4 pt-16 pb-[45vh]
+        lg:pt-0 lg:pb-0 lg:pr-[45%] lg:pl-8
+        landscape:pt-0 landscape:pb-0 landscape:pr-[45%] landscape:pl-6"
+        style={{ overflow: 'visible' }}
+      >
         <div
-          className="flex items-center justify-center px-4 mt-16 h-[min(55vh,480px)]
-            lg:flex-none lg:w-[50%] lg:justify-end lg:px-0 lg:mt-0 lg:h-[min(70vh,600px)]
-            landscape:flex-none landscape:w-[50%] landscape:justify-end landscape:px-0 landscape:mt-0 landscape:h-[min(80vh,400px)]"
+          className="flex items-center justify-center h-[min(55vh,480px)]
+            lg:h-[min(70vh,600px)] lg:w-full lg:justify-end
+            landscape:h-[min(80vh,400px)] landscape:w-full landscape:justify-end"
           style={{ overflow: 'visible' }}
         >
           <CoverFlow
@@ -104,32 +111,19 @@ export default function Home() {
             initialIndex={0}
           />
         </div>
-
-        {/* Spacer for mobile portrait - pushes content down */}
-        <div className="flex-1 lg:hidden landscape:hidden" />
-
-        {/* Release Info section */}
-        <div
-          className="flex flex-col items-center px-6 z-20 pb-[calc(2.5rem+env(safe-area-inset-bottom))]
-            lg:flex-none lg:items-start lg:w-[40%] lg:max-w-md lg:px-0 lg:pb-0
-            landscape:flex-none landscape:items-start landscape:w-[40%] landscape:max-w-sm landscape:px-0 landscape:pb-0"
-        >
-          <div className="flex flex-col items-center gap-2 w-full max-w-sm lg:items-start lg:max-w-none lg:gap-4 landscape:items-start landscape:max-w-none landscape:gap-3">
-            <ReleaseInfo release={activeRelease} direction={direction} desktopAlign="left" introDelay={introPhase === 'loading' ? 2000 : 0} />
-            <StreamingLinks links={activeRelease.streamingLinks} variant="stacked" desktopAlign="left" introDelay={introPhase === 'loading' ? 2200 : 0} />
-          </div>
-        </div>
       </div>
 
-      {/* Bottom fade gradient (mobile portrait only) */}
+      {/* Release Info section - above edge gradients for readability */}
       <div
-        className="fixed left-0 right-0 bottom-0 pointer-events-none lg:hidden landscape:hidden"
-        style={{
-          zIndex: 5,
-          top: '50%',
-          background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.35) 25%, rgba(0,0,0,0.65) 55%, rgba(0,0,0,0.85) 100%)',
-        }}
-      />
+        className="fixed bottom-0 left-0 right-0 z-20 flex flex-col items-center px-6 pb-[calc(2.5rem+env(safe-area-inset-bottom))]
+          lg:inset-0 lg:items-center lg:justify-center lg:pl-[55%] lg:pr-8 lg:pb-0
+          landscape:inset-0 landscape:items-center landscape:justify-center landscape:pl-[55%] landscape:pr-6 landscape:pb-0"
+      >
+        <div className="flex flex-col items-center gap-2 w-full max-w-sm lg:items-start lg:max-w-md lg:gap-4 landscape:items-start landscape:max-w-sm landscape:gap-3">
+          <ReleaseInfo release={activeRelease} direction={direction} desktopAlign="left" introDelay={introPhase === 'loading' ? 2000 : 0} />
+          <StreamingLinks links={activeRelease.streamingLinks} variant="stacked" desktopAlign="left" introDelay={introPhase === 'loading' ? 2200 : 0} />
+        </div>
+      </div>
 
       {/* Social Footer - bottom on mobile, top-right on desktop */}
       <SocialFooter

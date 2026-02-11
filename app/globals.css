@@ -205,3 +205,31 @@ html {
   -o-user-drag: none;
   user-drag: none;
 }
+
+/* Edge gradient masks for blur fade effect */
+.edge-gradient-top {
+  mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+}
+
+.edge-gradient-bottom {
+  /* Mobile: steeper ramp for taller gradient */
+  mask-image: linear-gradient(to top, black 0%, black 20%, transparent 60%);
+  -webkit-mask-image: linear-gradient(to top, black 0%, black 20%, transparent 60%);
+}
+
+/* Desktop: gentler ramp matching top gradient */
+@media (min-width: 1024px) {
+  .edge-gradient-bottom {
+    mask-image: linear-gradient(to top, black 0%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, transparent 100%);
+  }
+}
+
+/* Landscape: same as desktop */
+@media (orientation: landscape) and (max-height: 500px) {
+  .edge-gradient-bottom {
+    mask-image: linear-gradient(to top, black 0%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, transparent 100%);
+  }
+}

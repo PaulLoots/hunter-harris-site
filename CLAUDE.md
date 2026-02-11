@@ -472,6 +472,40 @@ The CoverFlow has a theatrical intro animation where artwork starts stacked and 
 - `AnimatedGradient.tsx`: Fades in during background phase
 - `page.tsx`: Header/UI delays coordinated with intro phases
 
+### Edge Gradients (Text Legibility)
+Dynamic palette-colored gradient overlays with backdrop blur for text readability:
+
+**EdgeGradient Component (`components/EdgeGradient.tsx`):**
+- Top: 120px height, 16px blur, z-index 15
+- Bottom: 420px mobile / 120px desktop, 20px blur, z-index 15
+- Color: `palette.darkMuted` with animated transitions (0.8s)
+- CSS masks fade out blur effect smoothly
+
+**Z-Index Layer Order:**
+```
+Z-40  ← SocialFooter (top-right icons)
+Z-20  ← Header, Release Info, Streaming Links
+Z-15  ← EdgeGradient top & bottom
+Z-10  ← CoverFlow (artwork goes behind blur)
+Z-0   ← AnimatedGradient background
+```
+
+**Responsive Behavior:**
+- Mobile: Tall bottom gradient (420px) with steep blur ramp
+- Desktop/Landscape: Equal gradients (120px each) with gentle blur
+
+### Typography & Buttons
+**ReleaseInfo styling:**
+- Title: `text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold`
+- Subtitle: `text-base sm:text-lg lg:text-xl text-white/70 italic`
+- Metadata: `tracking-[0.15em] text-white/50`
+
+**StreamingLinks buttons:**
+- White solid: `bg-white/95 text-gray-900 rounded-xl h-[52px]`
+- Side-by-side equal width layout
+- Spotify icon: brand green (#1DB954)
+- Apple Music icon: red gradient
+
 ---
 
 **Last Updated:** February 11, 2025

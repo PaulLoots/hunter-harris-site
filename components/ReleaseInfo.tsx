@@ -42,19 +42,19 @@ export default function ReleaseInfo({ release, direction = "down", desktopAlign 
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: exitY }}
         transition={{ duration: 0.3, ease: "easeOut", delay: delaySeconds }}
-        className={`py-1 no-select flex flex-col justify-center gap-0.5 lg:gap-1 ${alignClasses}`}
+        className={`py-1 no-select flex flex-col justify-center gap-1.5 lg:gap-2 ${alignClasses}`}
         aria-live="polite"
         aria-atomic="true"
       >
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight text-white drop-shadow-lg leading-tight">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight text-white drop-shadow-lg leading-tight">
           {release.title}
         </h2>
         {release.subtitle && (
-          <p className="text-sm sm:text-base lg:text-lg text-white/60 leading-snug max-w-[280px] lg:max-w-none">
+          <p className="text-base sm:text-lg lg:text-xl text-white/70 italic leading-snug max-w-[320px] lg:max-w-none">
             {release.subtitle}
           </p>
         )}
-        <p className="text-[11px] sm:text-xs lg:text-sm uppercase tracking-[0.2em] font-medium text-white/40 mt-1 lg:mt-2">
+        <p className="text-[11px] sm:text-xs lg:text-sm uppercase tracking-[0.15em] font-medium text-white/50 mt-2 lg:mt-3">
           {getReleaseTypeLabel(release.type)} · {formatReleaseDate(release.releaseDate)}
         </p>
       </motion.div>
