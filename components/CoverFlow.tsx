@@ -5,9 +5,12 @@ import { useState, useEffect, useCallback, useMemo, forwardRef, useImperativeHan
 import type { Release } from "@/lib/types";
 import CoverFlowItem from "./CoverFlowItem";
 
+export type IntroPhase = 'loading' | 'background' | 'fanout' | 'complete';
+
 interface CoverFlowProps {
   releases: Release[];
   onActiveChange: (index: number) => void;
+  onIntroPhaseChange?: (phase: IntroPhase) => void;
   initialIndex?: number;
 }
 
@@ -18,10 +21,11 @@ export interface CoverFlowRef {
 const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
   releases,
   onActiveChange,
+  onIntroPhaseChange,
   initialIndex = 0,
 }, ref) => {
   const [activeIndex, setActiveIndex] = useState(initialIndex);
-  const [hasEntered, setHasEntered] = useState(false);
+  const [introPhase, setIntroPhase] = useState<IntroPhase>('loading');
   const [isDragging, setIsDragging] = useState(false);
   const xPosition = useMotionValue(initialIndex);
   const dragStartPosition = useMotionValue(initialIndex);
@@ -32,11 +36,45 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
     return normalized < 0 ? normalized + releases.length : normalized;
   }, [releases.length]);
 
-  // Trigger entry animation after mount
-  useEffect(() => {
-    const timer = setTimeout(() => setHasEntered(true), 100);
-    return () => clearTimeout(timer);
+  // Check for reduced motion preference
+  const prefersReducedMotion = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }, []);
+
+  // Intro animation phases
+  useEffect(() => {
+    // If reduced motion, skip to complete immediately
+    if (prefersReducedMotion) {
+      setIntroPhase('complete');
+      onIntroPhaseChange?.('complete');
+      return;
+    }
+
+    // Phase 1: Background fade + stack reveal starts (100ms delay to ensure mount)
+    const bgTimer = setTimeout(() => {
+      setIntroPhase('background');
+      onIntroPhaseChange?.('background');
+    }, 100);
+
+    // Phase 2: Fan out starts (900ms - after stack has scaled up and settled)
+    const fanTimer = setTimeout(() => {
+      setIntroPhase('fanout');
+      onIntroPhaseChange?.('fanout');
+    }, 900);
+
+    // Phase 3: Complete (2500ms - after fan out animation finishes)
+    const completeTimer = setTimeout(() => {
+      setIntroPhase('complete');
+      onIntroPhaseChange?.('complete');
+    }, 2500);
+
+    return () => {
+      clearTimeout(bgTimer);
+      clearTimeout(fanTimer);
+      clearTimeout(completeTimer);
+    };
+  }, [prefersReducedMotion, onIntroPhaseChange]);
 
   // Update active index and notify parent
   const updateActiveIndex = useCallback(
@@ -52,6 +90,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
   const navigateToIndex = useCallback(
     (targetIndex: number) => {
       if (isDragging) return; // Don't navigate while dragging
+      if (introPhase !== 'complete') return; // Don't navigate during intro
 
       // Smoother spring animation
       animate(xPosition, targetIndex, {
@@ -71,7 +110,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
         },
       });
     },
-    [isDragging, updateActiveIndex, xPosition, activeIndex, normalizeIndex]
+    [isDragging, introPhase, updateActiveIndex, xPosition, activeIndex, normalizeIndex]
   );
 
   // Expose navigateToIndex to parent via ref
@@ -101,6 +140,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
 
   // Handle pan start - stop any running animation
   const handlePanStart = useCallback(() => {
+    if (introPhase !== 'complete') return; // Don't allow dragging during intro
     setIsDragging(true);
     // Stop any running spring animation immediately
     xPosition.stop();
@@ -109,7 +149,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
     xPosition.set(current);
     // Capture starting position for this drag
     dragStartPosition.set(current);
-  }, [xPosition, dragStartPosition]);
+  }, [xPosition, dragStartPosition, introPhase]);
 
   // Handle pan - real-time 1:1 tracking
   const handlePan = useCallback(
@@ -183,6 +223,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
   // Keyboard navigation (up/down arrows)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (introPhase !== 'complete') return; // Don't navigate during intro
       if (e.key === "ArrowUp") {
         e.preventDefault();
         const currentPos = Math.round(xPosition.get());
@@ -196,7 +237,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [navigateToIndex, xPosition]);
+  }, [navigateToIndex, xPosition, introPhase]);
 
   // Scroll wheel navigation
   useEffect(() => {
@@ -204,6 +245,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
     let accumulatedDelta = 0;
 
     const handleWheel = (e: WheelEvent) => {
+      if (introPhase !== 'complete') return; // Don't navigate during intro
       e.preventDefault();
 
       accumulatedDelta += e.deltaY;
@@ -226,7 +268,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
       window.removeEventListener("wheel", handleWheel);
       if (wheelTimeout) clearTimeout(wheelTimeout);
     };
-  }, [navigateToIndex, xPosition]);
+  }, [navigateToIndex, xPosition, introPhase]);
 
   // Generate visible items for infinite scrolling
   // Render items in a window around current position
@@ -263,12 +305,12 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
       <div className="preserve-3d flex items-center justify-center h-full relative" style={{ overflow: 'visible' }}>
         {visibleItems.map((item) => (
           <CoverFlowItem
-            key={item.position}
+            key={`${item.releaseIndex}-${Math.floor(item.position / releases.length)}`}
             release={item.release}
             index={item.position}
             activeIndex={activeIndex}
             continuousPosition={xPosition}
-            hasEntered={hasEntered}
+            introPhase={introPhase}
             isDragging={isDragging}
             onClick={() => navigateToIndex(item.position)}
           />

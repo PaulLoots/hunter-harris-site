@@ -2,18 +2,29 @@
 
 import { ColorPalette } from "@/lib/types";
 import { motion } from "framer-motion";
+import type { IntroPhase } from "./CoverFlow";
 
 interface AnimatedGradientProps {
   palette: ColorPalette;
   isActive?: boolean;
+  introPhase?: IntroPhase;
 }
 
 export default function AnimatedGradient({
   palette,
   isActive = true,
+  introPhase = 'complete',
 }: AnimatedGradientProps) {
+  // During loading phase, gradient is invisible
+  const introOpacity = introPhase === 'loading' ? 0 : 1;
+
   return (
-    <div className="absolute inset-0 -z-10 overflow-hidden bg-black">
+    <motion.div
+      className="absolute inset-0 -z-10 overflow-hidden bg-black"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: introOpacity }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
       {/* Back layer - slowest, largest */}
       <motion.div
         className="absolute inset-0 gradient-layer-back"
@@ -46,6 +57,6 @@ export default function AnimatedGradient({
         } as any}
         transition={{ duration: 0.8, ease: "easeInOut" }}
       />
-    </div>
+    </motion.div>
   );
 }

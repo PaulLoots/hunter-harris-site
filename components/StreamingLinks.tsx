@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 interface StreamingLinksProps {
   links: StreamingLinksType;
   variant?: "stacked" | "inline";
+  desktopAlign?: "center" | "left";
+  introDelay?: number; // milliseconds
 }
 
 const SpotifyIcon = () => (
@@ -35,7 +37,11 @@ const AppleMusicIcon = () => (
 export default function StreamingLinks({
   links,
   variant = "stacked",
+  desktopAlign = "center",
+  introDelay = 0,
 }: StreamingLinksProps) {
+  // Convert milliseconds to seconds for framer-motion
+  const baseDelaySeconds = introDelay / 1000;
   const platforms = [
     {
       name: "Spotify",
@@ -51,15 +57,17 @@ export default function StreamingLinks({
     },
   ].filter((platform) => platform.url);
 
+  const alignClass = desktopAlign === "left" ? "justify-center lg:justify-start landscape:justify-start" : "justify-center";
+
   // Show "Coming Soon" badge if no streaming links available
   if (platforms.length === 0) {
     return (
-      <div className="flex items-center justify-center">
+      <div className={`flex items-center ${alignClass}`}>
         <motion.div
           className="px-5 py-2 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full text-white/60 font-medium text-xs uppercase tracking-widest"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
+          transition={{ duration: 0.4, delay: baseDelaySeconds }}
         >
           Coming Soon
         </motion.div>
@@ -71,8 +79,8 @@ export default function StreamingLinks({
     <div
       className={`flex ${
         variant === "stacked"
-          ? "flex-row gap-2 w-full max-w-sm justify-center"
-          : "flex-row gap-4 flex-wrap justify-center"
+          ? `flex-row gap-2 w-full max-w-sm lg:max-w-none ${alignClass}`
+          : `flex-row gap-4 flex-wrap ${alignClass}`
       }`}
     >
       {platforms.map((platform, index) => (
@@ -85,7 +93,7 @@ export default function StreamingLinks({
           className="flex items-center justify-center gap-2 h-[44px] px-5 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full text-white/90 font-medium text-sm transition-all duration-200 hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-white/50"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: index * 0.1 }}
+          transition={{ duration: 0.4, delay: baseDelaySeconds + index * 0.1 }}
           viewport={{ once: true }}
         >
           <span className="flex-shrink-0">{platform.icon}</span>

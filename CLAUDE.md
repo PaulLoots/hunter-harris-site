@@ -446,8 +446,34 @@ A change is successful if:
 - iOS safe area inset support throughout
 - touch-action: none prevents scroll interference
 
+### Intro Animation (Theatrical Stack-to-Fan)
+The CoverFlow has a theatrical intro animation where artwork starts stacked and fans out:
+
+**Phase Timeline (managed in CoverFlow.tsx):**
+- `loading` (0-100ms): Everything hidden
+- `background` (100-900ms): Gradient fades in, stack appears at 0.85 scale, scales up to 1.0
+- `fanout` (900-2500ms): Items fan out from stack to CoverFlow positions
+- `complete` (2500ms+): Normal interactive state
+
+**Key Implementation Details:**
+- **Stack state**: Items stacked with random rotateZ (-2° to +2°), active item on top (z=0)
+- **Z separation**: -8px per item distance to prevent intersection during fan-out
+- **Z leads rotation**: Z transition completes 50% faster than rotation to prevent items cutting through each other
+- **Scale animation**: Uses tween with easeInOut (not spring) for smooth scale-up
+- **Fan-out animation**: Uses spring physics (stiffness: 100, damping: 22, mass: 1.0)
+- **Stagger delay**: 80ms per item distance from center, max 400ms
+- **Shadows**: Progressive (none → shadow-sm → shadow-2xl) to avoid overlap darkness
+- **Opacity**: Instant CSS opacity (not animated) so all items appear together
+- **React keys**: Use `releaseIndex-cycle` format to prevent fling bug during infinite scroll
+
+**Files involved:**
+- `CoverFlow.tsx`: Phase timing, passes `introPhase` to children
+- `CoverFlowItem.tsx`: All animation logic via motion values (`fanProgress`, `stackScale`)
+- `AnimatedGradient.tsx`: Fades in during background phase
+- `page.tsx`: Header/UI delays coordinated with intro phases
+
 ---
 
-**Last Updated:** February 2, 2025
+**Last Updated:** February 11, 2025
 **Maintained By:** Hunter Harris Team
 **For AI Assistants:** This file provides context for working on the codebase. Always read this before making significant changes.

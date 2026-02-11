@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        'landscape': { 'raw': '(orientation: landscape) and (min-width: 568px)' },
+      },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
       },

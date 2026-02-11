@@ -40,7 +40,9 @@ export default function SocialFooter({ instagram, tiktok }: SocialFooterProps) {
   if (socialLinks.length === 0) return null;
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-center gap-8 pb-safe" style={{ height: 'calc(3rem + env(safe-area-inset-bottom))' }}>
+    <footer
+      className="fixed z-40 flex items-center justify-center gap-6 top-4 right-6"
+    >
       {socialLinks.map((link) => (
         <motion.a
           key={link.name}
@@ -48,7 +50,7 @@ export default function SocialFooter({ instagram, tiktok }: SocialFooterProps) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`Follow on ${link.name}`}
-          className="text-white/80 hover:text-white transition-colors duration-200 p-2 pointer-events-auto"
+          className="text-white/60 hover:text-white transition-colors duration-200 p-2 pointer-events-auto"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
         >
