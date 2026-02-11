@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { releases } from "@/lib/releases.generated";
@@ -17,19 +17,18 @@ export default function Home() {
   const [introPhase, setIntroPhase] = useState<IntroPhase>('loading');
   const prevIndexRef = useRef(0);
   const coverFlowRef = useRef<CoverFlowRef>(null);
-  const activeRelease = releases[activeIndex];
+  const activeRelease = useMemo(() => releases[activeIndex], [activeIndex]);
 
   const handleIntroPhaseChange = useCallback((phase: IntroPhase) => {
     setIntroPhase(phase);
   }, []);
 
-  const handleActiveChange = (index: number) => {
+  const handleActiveChange = useCallback((index: number) => {
     // Determine direction based on index change
-    const newDirection = index > prevIndexRef.current ? "down" : "up";
-    setDirection(newDirection);
+    setDirection(index > prevIndexRef.current ? "down" : "up");
     prevIndexRef.current = index;
     setActiveIndex(index);
-  };
+  }, []);
 
   const handleScreenTap = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only handle taps on the background, not on interactive elements
@@ -70,7 +69,7 @@ export default function Home() {
   return (
     <main
       className="fixed inset-0"
-      style={{ overflow: 'hidden', touchAction: 'none' }}
+      style={{ touchAction: 'none' }}
       onClick={handleScreenTap}
     >
       {/* Animated gradient background - extends beyond viewport for iOS and Safari chrome */}
@@ -101,12 +100,11 @@ export default function Home() {
         >
           <h1 className="flex items-center pointer-events-auto">
             <Image
-              src="/hunter-harris-signature.svg"
+              src="/hunter-harris-signature.png"
               alt="Hunter Harris"
-              width={200}
-              height={60}
+              width={254}
+              height={120}
               className="h-10 sm:h-12 md:h-14 w-auto drop-shadow-lg"
-              priority
             />
             <span className="sr-only">Hunter Harris</span>
           </h1>
@@ -114,7 +112,7 @@ export default function Home() {
       </header>
 
       {/* CoverFlow section - below edge gradients so blur works on artwork */}
-      <div className="fixed inset-0 z-10 flex items-center justify-center px-4 pt-16 pb-[45vh]
+      <div className="fixed inset-0 z-10 flex items-center justify-center px-4 pt-24 pb-[45vh]
         lg:pt-0 lg:pb-0 lg:pr-[45%] lg:pl-8
         landscape:pt-0 landscape:pb-0 landscape:pr-[45%] landscape:pl-6 pointer-events-none"
         style={{ overflow: 'visible' }}
@@ -137,7 +135,7 @@ export default function Home() {
 
       {/* Release Info section - pointer-events-none so gestures pass through, links remain clickable */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-20 flex flex-col items-center px-6 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pointer-events-none
+        className="fixed bottom-0 left-0 right-0 z-40 flex flex-col items-center px-6 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pointer-events-none
           lg:inset-0 lg:items-center lg:justify-center lg:pl-[55%] lg:pr-8 lg:pb-0
           landscape:inset-0 landscape:items-center landscape:justify-center landscape:pl-[55%] landscape:pr-6 landscape:pb-0"
       >

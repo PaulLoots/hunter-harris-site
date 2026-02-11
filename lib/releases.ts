@@ -17,7 +17,10 @@ export const releases: Release[] = [
       lightMuted: "#a8dadc",
       dominant: "#06ffa5",
     },
-    streamingLinks: {},
+    streamingLinks: {
+      spotify: "https://open.spotify.com/album/2CVgqb9KBzOmjiZbsjpP33",
+      appleMusic: "https://music.apple.com/album/dirty-laundry/1870573660",
+    },
     featured: true,
   },
   {

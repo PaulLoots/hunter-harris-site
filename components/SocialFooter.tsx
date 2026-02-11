@@ -1,7 +1,3 @@
-"use client";
-
-import { motion } from "framer-motion";
-
 interface SocialFooterProps {
   instagram?: string;
   tiktok?: string;
@@ -45,18 +41,16 @@ export default function SocialFooter({ instagram, tiktok }: SocialFooterProps) {
       style={{ top: 'calc(1rem + env(safe-area-inset-top, 0px))', right: 'calc(0.75rem + env(safe-area-inset-right, 0px))' }}
     >
       {socialLinks.map((link) => (
-        <motion.a
+        <a
           key={link.name}
           href={link.url}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`Follow on ${link.name}`}
-          className="text-white/60 hover:text-white transition-colors duration-200 p-2 pointer-events-auto"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
+          className="text-white/60 hover:text-white hover:scale-110 active:scale-95 transition-all duration-200 p-2 pointer-events-auto"
         >
           {link.icon}
-        </motion.a>
+        </a>
       ))}
     </footer>
   );

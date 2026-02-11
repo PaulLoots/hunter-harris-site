@@ -2,7 +2,7 @@
 
 import { motion, useTransform, useMotionValue, animate, type MotionValue } from "framer-motion";
 import Image from "next/image";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, memo } from "react";
 import type { Release } from "@/lib/types";
 import type { IntroPhase } from "./CoverFlow";
 
@@ -70,7 +70,7 @@ function calculateFannedComponents(offset: number) {
   return { translateY, translateZ, rotateX, scale };
 }
 
-export default function CoverFlowItem({
+export default memo(function CoverFlowItem({
   release,
   index,
   activeIndex,
@@ -202,4 +202,4 @@ export default function CoverFlowItem({
       </div>
     </motion.div>
   );
-}
+})

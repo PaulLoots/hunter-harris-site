@@ -20,7 +20,7 @@ This is a premium, mobile-first music portfolio website for pop artist **Hunter 
 - **Infinite loop scrolling** (wraps around, no start/finish)
 - **Touch-optimized vertical drag gestures** with momentum physics
 - **Multi-layer parallax gradients** derived from artwork colors
-- **Signature logo** in header (SVG)
+- **Signature logo** in header (optimized PNG, converted from SVG)
 - **Directional release info** that slides up/down based on navigation
 - **Prominent streaming links** (Spotify, Apple Music only)
 
@@ -28,17 +28,22 @@ This is a premium, mobile-first music portfolio website for pop artist **Hunter 
 
 ```
 app/
-├── layout.tsx          # Root layout, fonts, SEO metadata
+├── layout.tsx          # Root layout, fonts, SEO metadata, JSON-LD structured data
 ├── page.tsx            # Main page with CoverFlow carousel
-└── globals.css         # Tailwind + 3D transforms + parallax gradients
+├── globals.css         # Tailwind + 3D transforms + parallax gradients
+├── robots.ts           # Auto-generated robots.txt
+├── sitemap.ts          # Auto-generated sitemap.xml
+├── icon.png            # Favicon (32x32, generated from signature logo)
+└── apple-icon.png      # Apple touch icon (180x180, generated from signature logo)
 
 components/
 ├── CoverFlow.tsx       # Main carousel container (infinite scroll logic)
-├── CoverFlowItem.tsx   # Individual 3D artwork card with transforms
+├── CoverFlowItem.tsx   # Individual 3D artwork card with transforms (React.memo)
 ├── ReleaseInfo.tsx     # Title, subtitle, release date with directional fade
 ├── AnimatedGradient.tsx # Multi-layer parallax background
 ├── StreamingLinks.tsx  # Platform buttons (Spotify, Apple Music)
-└── SocialFooter.tsx    # Fixed footer with social links
+├── EdgeGradient.tsx    # Palette-colored gradient overlays with backdrop blur
+└── SocialFooter.tsx    # Fixed footer with social links (pure CSS, no Framer Motion)
 
 lib/
 ├── types.ts            # TypeScript interfaces
@@ -49,8 +54,11 @@ scripts/
 └── generate-palettes.ts # Extracts colors from artwork
 
 public/
-├── artwork/            # Square JPG images (800x800px min)
-└── hunter-harris-signature.svg # Logo
+├── artwork/            # Square JPG images (1080x1080px)
+├── hunter-harris-signature.png # Logo (optimized PNG, 254x120, 4.5KB)
+├── hunter-harris-signature.svg # Logo source (516KB, not served)
+├── og-image.jpg        # Open Graph social image (1200x630, from Dirty Laundry artwork)
+└── apple-music-badge.png # Apple Music icon for streaming buttons
 ```
 
 ## Single Source of Truth: lib/releases.ts
@@ -138,7 +146,12 @@ page.tsx
 - Only ±12 items rendered at a time (sliding window)
 - GPU-accelerated transforms (translateY/Z, rotateX, scale)
 - MotionValue prevents React re-renders during drag
-- `will-change: transform` on active elements
+- `React.memo` on CoverFlowItem (prevents 25 items re-rendering per swipe)
+- `useMemo` on activeRelease, `useCallback` on handlers in page.tsx
+- Logo: optimized PNG (4.5KB) instead of SVG (516KB), no priority preload
+- SocialFooter uses pure CSS hover/active effects (no Framer Motion import)
+- OG image compressed with mozjpeg (96KB)
+- Dead CSS removed (unused `.animated-gradient`, scrollbar styles, `will-change`)
 
 ### 7. Accessibility
 - Semantic HTML (main, header, nav, footer)
@@ -241,7 +254,7 @@ Default styles are mobile. Use Tailwind breakpoints:
 - `lg:` - 1024px+
 
 ### Component Patterns
-- All components use `"use client"` (client-side rendering)
+- Most components use `"use client"` (SocialFooter is a server component)
 - Framer Motion for 3D transforms and gestures
 - Tailwind utilities preferred over custom CSS
 - CSS variables for dynamic gradient colors
@@ -476,8 +489,8 @@ The CoverFlow has a theatrical intro animation where artwork starts stacked and 
 Dynamic palette-colored gradient overlays with backdrop blur for text readability:
 
 **EdgeGradient Component (`components/EdgeGradient.tsx`):**
-- Top: 120px height, 16px blur, z-index 15
-- Bottom: 500px mobile / 160px desktop, 20px blur, z-index 15
+- Top: 120px height, 8px blur, z-index 15
+- Bottom: 500px mobile / 160px desktop, 12px blur, z-index 15
 - Color: `palette.darkMuted` with animated transitions (0.8s)
 - CSS masks fade out blur effect smoothly
 - Extends beyond safe area on iOS (negative `env(safe-area-inset-*)` offset)
@@ -485,9 +498,9 @@ Dynamic palette-colored gradient overlays with backdrop blur for text readabilit
 **Z-Index Layer Order:**
 ```
 Z-50  ← SocialFooter (top-right icons)
-Z-40  ← Streaming Links (clickable, above gesture layer)
+Z-40  ← Release Info section + Streaming Links (pointer-events-none except buttons)
 Z-30  ← Full-screen gesture capture layer (pan/swipe)
-Z-20  ← Header, Release Info text (pointer-events-none)
+Z-20  ← Header (pointer-events-none)
 Z-15  ← EdgeGradient top & bottom
 Z-10  ← CoverFlow visuals (pointer-events-none)
 Z-0   ← AnimatedGradient background
@@ -504,6 +517,18 @@ Pan/swipe gestures are handled by a full-screen overlay at z-30 in `page.tsx`:
 - Release info text is `pointer-events-none` so gestures pass through
 - Streaming links sit at z-40 with `pointer-events-auto` to remain clickable
 - This allows swiping anywhere on screen (including over text) to scroll releases
+
+### SEO & Metadata
+- **Domain:** `hunterharris.top`
+- **metadataBase** set in `layout.tsx` (critical for OG image resolution)
+- **Open Graph:** title, description, 1200x630 image, siteName, locale
+- **Twitter Card:** summary_large_image, `@hunterharrismus` creator
+- **Canonical URL** via `alternates`
+- **Structured Data (JSON-LD):** MusicGroup + MusicAlbum/MusicRecording per release
+- **robots.ts:** Allow all crawlers, reference sitemap
+- **sitemap.ts:** Homepage + all releases as hash anchors
+- **Favicons:** `app/icon.png` (32x32) and `app/apple-icon.png` (180x180) — Next.js convention files
+- **Security headers** in `next.config.js`: X-DNS-Prefetch-Control, X-Frame-Options, Referrer-Policy
 
 ### iOS Safe Area Support
 - `viewport-fit=cover` meta tag in `layout.tsx`

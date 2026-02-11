@@ -61,8 +61,8 @@ export default function EdgeGradient({ position, palette }: EdgeGradientProps) {
       <div
         className={`absolute inset-0 ${isTop ? "edge-gradient-top" : "edge-gradient-bottom"}`}
         style={{
-          backdropFilter: isTop ? "blur(16px)" : "blur(20px)",
-          WebkitBackdropFilter: isTop ? "blur(16px)" : "blur(20px)",
+          backdropFilter: isTop ? "blur(8px)" : "blur(12px)",
+          WebkitBackdropFilter: isTop ? "blur(8px)" : "blur(12px)",
         }}
       />
     </motion.div>
