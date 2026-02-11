@@ -477,34 +477,57 @@ Dynamic palette-colored gradient overlays with backdrop blur for text readabilit
 
 **EdgeGradient Component (`components/EdgeGradient.tsx`):**
 - Top: 120px height, 16px blur, z-index 15
-- Bottom: 420px mobile / 120px desktop, 20px blur, z-index 15
+- Bottom: 500px mobile / 160px desktop, 20px blur, z-index 15
 - Color: `palette.darkMuted` with animated transitions (0.8s)
 - CSS masks fade out blur effect smoothly
+- Extends beyond safe area on iOS (negative `env(safe-area-inset-*)` offset)
 
 **Z-Index Layer Order:**
 ```
-Z-40  ← SocialFooter (top-right icons)
-Z-20  ← Header, Release Info, Streaming Links
+Z-50  ← SocialFooter (top-right icons)
+Z-40  ← Streaming Links (clickable, above gesture layer)
+Z-30  ← Full-screen gesture capture layer (pan/swipe)
+Z-20  ← Header, Release Info text (pointer-events-none)
 Z-15  ← EdgeGradient top & bottom
-Z-10  ← CoverFlow (artwork goes behind blur)
+Z-10  ← CoverFlow visuals (pointer-events-none)
 Z-0   ← AnimatedGradient background
 ```
 
 **Responsive Behavior:**
-- Mobile: Tall bottom gradient (420px) with steep blur ramp
-- Desktop/Landscape: Equal gradients (120px each) with gentle blur
+- Mobile: Tall bottom gradient (500px) with steep blur ramp
+- Desktop/Landscape: Equal gradients (120px top / 160px bottom) with gentle blur
+
+### Full-Screen Gesture Capture
+Pan/swipe gestures are handled by a full-screen overlay at z-30 in `page.tsx`:
+- CoverFlow exposes `handlePanStart`, `handlePan`, `handlePanEnd` via ref
+- Page-level `motion.div` captures gestures and forwards to CoverFlow
+- Release info text is `pointer-events-none` so gestures pass through
+- Streaming links sit at z-40 with `pointer-events-auto` to remain clickable
+- This allows swiping anywhere on screen (including over text) to scroll releases
+
+### iOS Safe Area Support
+- `viewport-fit=cover` meta tag in `layout.tsx`
+- Background gradient extends beyond viewport (`top: -200px, bottom: -200px`)
+- EdgeGradient extends into safe areas via negative offset
+- Header padding includes `env(safe-area-inset-top)`
+- SocialFooter position respects `env(safe-area-inset-top)` and `env(safe-area-inset-right)`
+- Release info bottom padding includes `env(safe-area-inset-bottom)`
+- Body background set to `#0a0a0a` as fallback behind safe areas
 
 ### Typography & Buttons
 **ReleaseInfo styling:**
 - Title: `text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold`
 - Subtitle: `text-base sm:text-lg lg:text-xl text-white/70 italic`
 - Metadata: `tracking-[0.15em] text-white/50`
+- Fade-only transitions (no translate) between releases via AnimatePresence
 
 **StreamingLinks buttons:**
-- White solid: `bg-white/95 text-gray-900 rounded-xl h-[52px]`
+- Glassy: `bg-white/10 backdrop-blur-md border-white/20 rounded-full text-white h-[52px]`
 - Side-by-side equal width layout
-- Spotify icon: brand green (#1DB954)
-- Apple Music icon: red gradient
+- Spotify icon: brand green (#1DB954) SVG
+- Apple Music icon: official PNG badge (`public/apple-music-badge.png`)
+- AnimatePresence keyed by `releaseId` for reliable fade transitions
+- "Coming Soon" badge for releases without streaming links
 
 ---
 

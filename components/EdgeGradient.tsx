@@ -22,23 +22,28 @@ export default function EdgeGradient({ position, palette }: EdgeGradientProps) {
         ${gradientColor}1A 60%,
         transparent 100%)`
     : `linear-gradient(to top,
-        ${gradientColor}B3 0%,
-        ${gradientColor}66 20%,
-        ${gradientColor}33 40%,
-        ${gradientColor}1A 60%,
-        transparent 85%)`;
+        ${gradientColor}CC 0%,
+        ${gradientColor}80 25%,
+        ${gradientColor}4D 45%,
+        ${gradientColor}26 65%,
+        transparent 90%)`;
 
   // Height classes: mobile vs desktop
   // Top: 120px always
-  // Bottom: 420px mobile (taller for text legibility), 120px desktop (matching top)
+  // Bottom: 500px mobile (taller for text legibility), 160px desktop
   const heightClass = isTop
     ? "h-[120px]"
-    : "h-[420px] lg:h-[120px] landscape:h-[120px]";
+    : "h-[500px] lg:h-[160px] landscape:h-[160px]";
+
+  // Extend beyond safe area so gradient fills the notch/home indicator area
+  const positionStyle = isTop
+    ? { top: 'calc(-1 * env(safe-area-inset-top, 0px))' }
+    : { bottom: 'calc(-1 * env(safe-area-inset-bottom, 0px))' };
 
   return (
     <motion.div
-      className={`fixed left-0 right-0 pointer-events-none ${isTop ? "top-0" : "bottom-0"} ${heightClass}`}
-      style={{ zIndex: 15 }}
+      className={`fixed left-0 right-0 pointer-events-none ${heightClass}`}
+      style={{ zIndex: 15, ...positionStyle }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}

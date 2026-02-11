@@ -17,7 +17,7 @@ html {
 }
 
 body {
-  background: transparent;
+  background: var(--background-base);
   color: var(--text-primary);
   margin: 0;
   padding: 0;

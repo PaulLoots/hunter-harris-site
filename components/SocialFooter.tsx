@@ -41,7 +41,8 @@ export default function SocialFooter({ instagram, tiktok }: SocialFooterProps) {
 
   return (
     <footer
-      className="fixed z-40 flex items-center justify-center gap-6 top-4 right-6"
+      className="fixed z-50 flex items-center justify-center gap-1"
+      style={{ top: 'calc(1rem + env(safe-area-inset-top, 0px))', right: 'calc(0.75rem + env(safe-area-inset-right, 0px))' }}
     >
       {socialLinks.map((link) => (
         <motion.a

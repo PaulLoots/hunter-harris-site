@@ -25,10 +25,6 @@ const getReleaseTypeLabel = (type: Release["type"]) => {
 export default function ReleaseInfo({ release, direction = "down", desktopAlign = "center", introDelay = 0 }: ReleaseInfoProps) {
   // Convert milliseconds to seconds for framer-motion
   const delaySeconds = introDelay / 1000;
-  // Determine slide direction based on navigation
-  const slideDistance = 20;
-  const initialY = direction === "down" ? slideDistance : -slideDistance;
-  const exitY = direction === "down" ? -slideDistance : slideDistance;
 
   const alignClasses = desktopAlign === "left"
     ? "text-center lg:text-left landscape:text-left items-center lg:items-start landscape:items-start"
@@ -38,10 +34,10 @@ export default function ReleaseInfo({ release, direction = "down", desktopAlign 
     <AnimatePresence mode="wait">
       <motion.div
         key={release.id}
-        initial={{ opacity: 0, y: initialY }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: exitY }}
-        transition={{ duration: 0.3, ease: "easeOut", delay: delaySeconds }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.25, ease: "easeOut", delay: delaySeconds }}
         className={`py-1 no-select flex flex-col justify-center gap-1.5 lg:gap-2 ${alignClasses}`}
         aria-live="polite"
         aria-atomic="true"

@@ -16,6 +16,9 @@ interface CoverFlowProps {
 
 export interface CoverFlowRef {
   navigateToIndex: (index: number) => void;
+  handlePanStart: () => void;
+  handlePan: (_event: any, info: any) => void;
+  handlePanEnd: (_event: any, info: any) => void;
 }
 
 const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
@@ -112,11 +115,6 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
     },
     [isDragging, introPhase, updateActiveIndex, xPosition, activeIndex, normalizeIndex]
   );
-
-  // Expose navigateToIndex to parent via ref
-  useImperativeHandle(ref, () => ({
-    navigateToIndex,
-  }), [navigateToIndex]);
 
   // Calculate target based on velocity for momentum
   const calculateMomentumTarget = useCallback(
@@ -220,6 +218,14 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
     [activeIndex, xPosition, dragStartPosition, calculateMomentumTarget, updateActiveIndex, normalizeIndex]
   );
 
+  // Expose navigateToIndex and pan handlers to parent via ref
+  useImperativeHandle(ref, () => ({
+    navigateToIndex,
+    handlePanStart,
+    handlePan,
+    handlePanEnd,
+  }), [navigateToIndex, handlePanStart, handlePan, handlePanEnd]);
+
   // Keyboard navigation (up/down arrows)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -298,9 +304,6 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
       style={{ overflow: 'visible' }}
       role="region"
       aria-label="Music releases carousel"
-      onPanStart={handlePanStart}
-      onPan={handlePan}
-      onPanEnd={handlePanEnd}
     >
       <div className="preserve-3d flex items-center justify-center h-full relative" style={{ overflow: 'visible' }}>
         {visibleItems.map((item) => (

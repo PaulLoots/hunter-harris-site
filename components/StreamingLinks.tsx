@@ -1,10 +1,12 @@
 "use client";
 
 import { StreamingLinks as StreamingLinksType } from "@/lib/types";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 interface StreamingLinksProps {
   links: StreamingLinksType;
+  releaseId?: string;
   variant?: "stacked" | "inline";
   desktopAlign?: "center" | "left";
   introDelay?: number; // milliseconds
@@ -23,24 +25,18 @@ const SpotifyIcon = () => (
 );
 
 const AppleMusicIcon = () => (
-  <svg
-    width="22"
-    height="22"
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <defs>
-      <linearGradient id="apple-music-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#FA233B" />
-        <stop offset="100%" stopColor="#FB5C74" />
-      </linearGradient>
-    </defs>
-    <path fill="url(#apple-music-gradient)" d="M18 3v12.5c0 2.485-2.015 4.5-4.5 4.5S9 17.985 9 15.5 11.015 11 13.5 11c.835 0 1.62.23 2.292.628L16 11.5V6.121L10 7.621V17.5c0 2.485-2.015 4.5-4.5 4.5S1 19.985 1 17.5 3.015 13 5.5 13c.835 0 1.62.23 2.292.628L8 13.5V3l10-1.5v1.5z" />
-  </svg>
+  <Image
+    src="/apple-music-badge.png"
+    alt=""
+    width={22}
+    height={22}
+    className="rounded"
+  />
 );
 
 export default function StreamingLinks({
   links,
+  releaseId,
   variant = "stacked",
   desktopAlign = "center",
   introDelay = 0,
@@ -67,44 +63,51 @@ export default function StreamingLinks({
   // Show "Coming Soon" badge if no streaming links available
   if (platforms.length === 0) {
     return (
-      <div className={`flex items-center ${alignClass}`}>
+      <AnimatePresence mode="wait">
         <motion.div
-          className="px-5 py-2 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full text-white/60 font-medium text-xs uppercase tracking-widest"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: baseDelaySeconds }}
+          key={releaseId || "coming-soon"}
+          className={`flex items-center ${alignClass}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut", delay: baseDelaySeconds }}
         >
-          Coming Soon
+          <div className="px-5 py-2 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full text-white/60 font-medium text-xs uppercase tracking-widest">
+            Coming Soon
+          </div>
         </motion.div>
-      </div>
+      </AnimatePresence>
     );
   }
 
   return (
-    <div
-      className={`flex ${
-        variant === "stacked"
-          ? `flex-row gap-3 w-full max-w-[360px] mx-auto lg:mx-0 ${alignClass}`
-          : `flex-row gap-4 flex-wrap ${alignClass}`
-      }`}
-    >
-      {platforms.map((platform, index) => (
-        <motion.a
-          key={platform.name}
-          href={platform.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={platform.label}
-          className="flex-1 flex items-center justify-center gap-2.5 h-[52px] px-5 bg-white/95 border border-white/30 rounded-xl text-gray-900 font-semibold text-sm shadow-[0_4px_20px_rgba(0,0,0,0.15),0_2px_8px_rgba(0,0,0,0.1)] transition-all duration-150 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] active:shadow-sm focus:outline-none focus:ring-2 focus:ring-white/50"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: baseDelaySeconds + index * 0.1 }}
-          viewport={{ once: true }}
-        >
-          <span className="flex-shrink-0">{platform.icon}</span>
-          <span>{platform.name}</span>
-        </motion.a>
-      ))}
-    </div>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={releaseId || "links"}
+        className={`flex ${
+          variant === "stacked"
+            ? `flex-row gap-3 w-full max-w-[360px] mx-auto lg:mx-0 ${alignClass}`
+            : `flex-row gap-4 flex-wrap ${alignClass}`
+        }`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.25, ease: "easeOut", delay: baseDelaySeconds }}
+      >
+        {platforms.map((platform) => (
+          <a
+            key={platform.name}
+            href={platform.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={platform.label}
+            className="flex-1 flex items-center justify-center gap-2.5 h-[52px] px-5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white font-semibold text-sm shadow-[0_4px_20px_rgba(0,0,0,0.15),0_2px_8px_rgba(0,0,0,0.1)] transition-all duration-150 hover:bg-white/15 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] active:shadow-sm focus:outline-none focus:ring-2 focus:ring-white/50"
+          >
+            <span className="flex-shrink-0">{platform.icon}</span>
+            <span>{platform.name}</span>
+          </a>
+        ))}
+      </motion.div>
+    </AnimatePresence>
   );
 }

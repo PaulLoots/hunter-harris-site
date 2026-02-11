@@ -36,7 +36,10 @@ export const releases: Release[] = [
       lightMuted: "#c8b6ff",
       dominant: "#ff6b9d",
     },
-    streamingLinks: {},
+    streamingLinks: {
+      spotify: "https://open.spotify.com/album/28XtoHnsT76sBRBLQVaBgY",
+      appleMusic: "https://music.apple.com/za/album/look-at-you-now/1872801153",
+    },
   },
   {
     id: "criminal",
@@ -56,7 +59,7 @@ export const releases: Release[] = [
     },
     streamingLinks: {
       spotify: "https://open.spotify.com/album/5fU2xuHC9jvik9YIe8ektt",
-      appleMusic: "https://music.apple.com/us/album/criminal-single/1870914451",
+      appleMusic: "https://music.apple.com/album/criminal-single/1870914451",
     },
   },
   {

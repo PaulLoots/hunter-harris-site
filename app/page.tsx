@@ -54,6 +54,19 @@ export default function Home() {
     }
   };
 
+  // Forward pan gestures from full-screen overlay to CoverFlow
+  const handlePanStart = useCallback(() => {
+    coverFlowRef.current?.handlePanStart();
+  }, []);
+
+  const handlePan = useCallback((_event: any, info: any) => {
+    coverFlowRef.current?.handlePan(_event, info);
+  }, []);
+
+  const handlePanEnd = useCallback((_event: any, info: any) => {
+    coverFlowRef.current?.handlePanEnd(_event, info);
+  }, []);
+
   return (
     <main
       className="fixed inset-0"
@@ -69,8 +82,17 @@ export default function Home() {
       <EdgeGradient position="top" palette={activeRelease.palette} />
       <EdgeGradient position="bottom" palette={activeRelease.palette} />
 
-      {/* Header - fixed position */}
-      <header className="fixed top-0 left-0 right-0 z-20 py-3 sm:py-4 no-select pointer-events-none">
+      {/* Full-screen gesture capture layer - captures pan/swipe from anywhere on screen */}
+      <motion.div
+        className="fixed inset-0 z-30"
+        style={{ touchAction: 'none' }}
+        onPanStart={handlePanStart}
+        onPan={handlePan}
+        onPanEnd={handlePanEnd}
+      />
+
+      {/* Header - fixed position, content respects safe area */}
+      <header className="fixed top-0 left-0 right-0 z-20 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] sm:pt-[calc(1rem+env(safe-area-inset-top,0px))] pb-3 sm:pb-4 no-select pointer-events-none">
         <motion.div
           className="flex items-center justify-center lg:justify-start lg:px-8 landscape:justify-start landscape:px-6"
           initial={{ opacity: 0 }}
@@ -94,7 +116,7 @@ export default function Home() {
       {/* CoverFlow section - below edge gradients so blur works on artwork */}
       <div className="fixed inset-0 z-10 flex items-center justify-center px-4 pt-16 pb-[45vh]
         lg:pt-0 lg:pb-0 lg:pr-[45%] lg:pl-8
-        landscape:pt-0 landscape:pb-0 landscape:pr-[45%] landscape:pl-6"
+        landscape:pt-0 landscape:pb-0 landscape:pr-[45%] landscape:pl-6 pointer-events-none"
         style={{ overflow: 'visible' }}
       >
         <div
@@ -113,15 +135,17 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Release Info section - above edge gradients for readability */}
+      {/* Release Info section - pointer-events-none so gestures pass through, links remain clickable */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-20 flex flex-col items-center px-6 pb-[calc(2.5rem+env(safe-area-inset-bottom))]
+        className="fixed bottom-0 left-0 right-0 z-20 flex flex-col items-center px-6 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pointer-events-none
           lg:inset-0 lg:items-center lg:justify-center lg:pl-[55%] lg:pr-8 lg:pb-0
           landscape:inset-0 landscape:items-center landscape:justify-center landscape:pl-[55%] landscape:pr-6 landscape:pb-0"
       >
         <div className="flex flex-col items-center gap-2 w-full max-w-sm lg:items-start lg:max-w-md lg:gap-4 landscape:items-start landscape:max-w-sm landscape:gap-3">
           <ReleaseInfo release={activeRelease} direction={direction} desktopAlign="left" introDelay={introPhase === 'loading' ? 2000 : 0} />
-          <StreamingLinks links={activeRelease.streamingLinks} variant="stacked" desktopAlign="left" introDelay={introPhase === 'loading' ? 2200 : 0} />
+          <div className="relative z-40 pointer-events-auto w-full">
+            <StreamingLinks links={activeRelease.streamingLinks} releaseId={activeRelease.id} variant="stacked" desktopAlign="left" introDelay={introPhase === 'loading' ? 2200 : 0} />
+          </div>
         </div>
       </div>
 
