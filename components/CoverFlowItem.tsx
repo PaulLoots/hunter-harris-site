@@ -188,12 +188,12 @@ export default memo(function CoverFlowItem({
       onClick={onClick}
       aria-current={isActive ? "true" : "false"}
     >
-      <div className="relative w-[85vw] max-w-[480px] md:w-[50vw] md:max-w-[520px] lg:w-[35vw] lg:max-w-[550px] landscape:w-[50vh] landscape:max-w-[380px] aspect-square">
+      <div className="relative w-[85vw] max-w-[480px] md:w-[50vw] md:max-w-[520px] lg:w-[38vw] lg:max-w-[620px] xl:max-w-[680px] landscape:w-[50vh] landscape:max-w-[380px] aspect-square">
         <Image
           src={release.artworkPath}
           alt={`${release.title} artwork`}
           fill
-          sizes="(max-width: 768px) 85vw, (max-width: 1024px) 50vw, 35vw"
+          sizes="(max-width: 768px) 85vw, (max-width: 1024px) 50vw, 38vw"
           className={`rounded-xl ${shadowClass} object-cover no-drag pointer-events-none`}
           loading={Math.abs(index - activeIndex) <= 6 ? "eager" : "lazy"}
           priority={Math.abs(index - activeIndex) <= 2}

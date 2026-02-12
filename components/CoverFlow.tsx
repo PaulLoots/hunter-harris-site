@@ -125,19 +125,9 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
   // Calculate target based on velocity for momentum
   const calculateMomentumTarget = useCallback(
     (velocity: number, currentIndex: number) => {
-      // Very high thresholds to reduce sensitivity
-      const velocityFactor = Math.abs(velocity) / 1200;
-
-      let itemCount = 0;
-      if (velocityFactor < 1) itemCount = 1;      // Gentle: 1 item
-      else if (velocityFactor < 3) itemCount = 2;  // Medium: 2 items
-      else if (velocityFactor < 6) itemCount = 3;  // Fast: 3 items
-      else itemCount = Math.min(4, Math.ceil(velocityFactor * 0.5)); // Very fast: max 4
-
+      // Always move exactly 1 item — small library, no need for multi-skip
       const direction = velocity < 0 ? 1 : -1;
-      const targetIndex = currentIndex + (itemCount * direction);
-
-      return targetIndex; // No clamping for infinite scroll
+      return currentIndex + direction;
     },
     []
   );
@@ -165,7 +155,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
       // Calculate position based on drag offset from start position
       // Negative offset.y = swipe up = increase index (next item)
       // Mobile-optimized sensitivity: 150px to move one item (very responsive)
-      const dragProgress = -info.offset.y / 150;
+      const dragProgress = -info.offset.y / 200;
       const startPos = dragStartPosition.get();
       const newPosition = startPos + dragProgress;
 
@@ -192,9 +182,8 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
 
       let targetIndex;
 
-      // If drag distance is small (< 0.4 items) OR velocity is low, just snap to nearest
-      // This prevents accidental flicks when user just taps or barely moves
-      if (dragDistance < 0.4 && Math.abs(info.velocity.y) < 400) {
+      // If velocity is low, just snap to nearest — prevents accidental flicks
+      if (Math.abs(info.velocity.y) < 800) {
         targetIndex = Math.round(currentPosition);
       } else {
         // Use momentum for larger, faster drags
@@ -209,7 +198,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
         stiffness: 250,
         damping: 28,
         mass: 0.8,
-        velocity: info.velocity.y / 150,
+        velocity: info.velocity.y / 200,
         onUpdate: (latest) => {
           const snappedIndex = Math.round(latest);
           if (normalizeIndex(snappedIndex) !== activeIndexRef.current) {

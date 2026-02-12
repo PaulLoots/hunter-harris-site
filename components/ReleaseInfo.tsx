@@ -12,10 +12,7 @@ interface ReleaseInfoProps {
 
 const formatReleaseDate = (dateString: string) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    year: "numeric",
-  });
+  return date.getFullYear().toString();
 };
 
 const getReleaseTypeLabel = (type: Release["type"]) => {

@@ -118,10 +118,9 @@ page.tsx
 - **Continuous position tracking**: Uses Framer Motion `MotionValue` for real-time drag updates
 
 ### 3. Gesture & Momentum Physics
-- **Drag sensitivity**: 150px vertical drag = 1 item movement
-- **Smart snap**: Ignores momentum only when BOTH drag distance is small (<0.4 items) AND velocity is low (<400px/s)
-- **Velocity-based momentum**: Fast flicks skip 2-4 items, gentle swipes move 1 item
-- **Velocity factor**: `velocity / 1200` maps flick speed to item count
+- **Drag sensitivity**: 200px vertical drag = 1 item movement
+- **Velocity-only snap**: Below 800px/s velocity → snap to nearest item (no momentum)
+- **Momentum**: Above 800px/s → always moves exactly 1 item in flick direction (no multi-skip)
 - **Spring physics**: stiffness 250, damping 28, mass 0.8 for snappy settling
 - **activeIndexRef**: A ref tracks the latest activeIndex to prevent stale closures in animation callbacks
 - **Pan start resync**: `handlePanStart` resyncs activeIndex when interrupting a running animation
@@ -182,7 +181,8 @@ Edit `app/page.tsx`:
 ```typescript
 <SocialFooter
   instagram="https://instagram.com/hunterharrismusic"
-  tiktok="https://tiktok.com/@hunterharrismusic"
+  tiktok="https://www.tiktok.com/@hunter.harris.period"
+  x="https://x.com/hunterharrismus"
 />
 ```
 
@@ -215,7 +215,7 @@ if (absOffset <= 2) {
 ### Adjust Drag Sensitivity
 Edit `components/CoverFlow.tsx` handlePan:
 ```typescript
-const dragProgress = -info.offset.y / 350; // Increase = less sensitive
+const dragProgress = -info.offset.y / 200; // Increase = less sensitive
 ```
 
 ### Adjust Gradient Animation Speed
@@ -451,9 +451,9 @@ A change is successful if:
 - Direction type: "up"/"down" instead of "left"/"right"
 
 ### Artwork & Layout
-- Artwork size increased: 85vw mobile (was 60vw), 50vw desktop (was 40vw)
-- Max sizes: 480px mobile (was 320px), 520px desktop (was 400px)
-- Carousel height: min(55vh, 480px) (was min(50vh, 400px))
+- Artwork sizes: 85vw mobile, 50vw md, 38vw lg, with max-w 480px / 520px / 620px / 680px(xl)
+- Landscape: 50vh with max-w 380px
+- Carousel container height: min(55vh, 480px) mobile, min(75vh, 700px) desktop
 - Fixed positioning with overflow visible for 3D transforms
 
 ### Layout Stability
@@ -559,6 +559,6 @@ Pan/swipe gestures are handled by a full-screen overlay at z-30 in `page.tsx`:
 
 ---
 
-**Last Updated:** February 12, 2025
+**Last Updated:** February 12, 2026
 **Maintained By:** Hunter Harris Team
 **For AI Assistants:** This file provides context for working on the codebase. Always read this before making significant changes.

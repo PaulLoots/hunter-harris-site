@@ -119,7 +119,7 @@ export default function Home() {
       >
         <div
           className="flex items-center justify-center h-[min(55vh,480px)]
-            lg:h-[min(70vh,600px)] lg:w-full lg:justify-end
+            lg:h-[min(75vh,700px)] lg:w-full lg:justify-end
             landscape:h-[min(80vh,400px)] landscape:w-full landscape:justify-end"
           style={{ overflow: 'visible' }}
         >
@@ -135,7 +135,7 @@ export default function Home() {
 
       {/* Release Info section - pointer-events-none so gestures pass through, links remain clickable */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-40 flex flex-col items-center px-6 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pointer-events-none
+        className="fixed bottom-0 left-0 right-0 z-40 flex flex-col items-center px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pointer-events-none
           lg:inset-0 lg:items-center lg:justify-center lg:pl-[55%] lg:pr-8 lg:pb-0
           landscape:inset-0 landscape:items-center landscape:justify-center landscape:pl-[55%] landscape:pr-6 landscape:pb-0"
       >
@@ -150,7 +150,8 @@ export default function Home() {
       {/* Social Footer - bottom on mobile, top-right on desktop */}
       <SocialFooter
         instagram="https://instagram.com/hunterharrismusic"
-        tiktok="https://tiktok.com/@hunterharrismusic"
+        tiktok="https://www.tiktok.com/@hunter.harris.period"
+        x="https://x.com/hunterharrismus"
       />
     </main>
   );
