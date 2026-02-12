@@ -31,7 +31,7 @@ export default function ReleaseInfo({ release, direction = "down", desktopAlign 
     : "text-center items-center";
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="popLayout">
       <motion.div
         key={release.id}
         initial={{ opacity: 0 }}

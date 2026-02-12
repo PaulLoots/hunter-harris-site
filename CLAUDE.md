@@ -119,9 +119,12 @@ page.tsx
 
 ### 3. Gesture & Momentum Physics
 - **Drag sensitivity**: 150px vertical drag = 1 item movement
-- **Smart snap**: Ignores momentum for small drags (<0.4 items or <800px/s velocity)
+- **Smart snap**: Ignores momentum only when BOTH drag distance is small (<0.4 items) AND velocity is low (<400px/s)
 - **Velocity-based momentum**: Fast flicks skip 2-4 items, gentle swipes move 1 item
+- **Velocity factor**: `velocity / 1200` maps flick speed to item count
 - **Spring physics**: stiffness 250, damping 28, mass 0.8 for snappy settling
+- **activeIndexRef**: A ref tracks the latest activeIndex to prevent stale closures in animation callbacks
+- **Pan start resync**: `handlePanStart` resyncs activeIndex when interrupting a running animation
 - **Keyboard support**: Arrow keys navigate up/down
 - **Scroll wheel support**: Mouse wheel navigates between releases on desktop
 - **Tap navigation**: Tap top 25% of screen for previous, bottom 25% for next
@@ -544,18 +547,18 @@ Pan/swipe gestures are handled by a full-screen overlay at z-30 in `page.tsx`:
 - Title: `text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold`
 - Subtitle: `text-base sm:text-lg lg:text-xl text-white/70 italic`
 - Metadata: `tracking-[0.15em] text-white/50`
-- Fade-only transitions (no translate) between releases via AnimatePresence
+- Fade-only transitions (no translate) between releases via AnimatePresence `mode="popLayout"` (crossfade)
 
 **StreamingLinks buttons:**
 - Glassy: `bg-white/10 backdrop-blur-md border-white/20 rounded-full text-white h-[52px]`
 - Side-by-side equal width layout
 - Spotify icon: brand green (#1DB954) SVG
 - Apple Music icon: official PNG badge (`public/apple-music-badge.png`)
-- AnimatePresence keyed by `releaseId` for reliable fade transitions
+- AnimatePresence `mode="popLayout"` keyed by `releaseId` for reliable crossfade transitions
 - "Coming Soon" badge for releases without streaming links
 
 ---
 
-**Last Updated:** February 11, 2025
+**Last Updated:** February 12, 2025
 **Maintained By:** Hunter Harris Team
 **For AI Assistants:** This file provides context for working on the codebase. Always read this before making significant changes.

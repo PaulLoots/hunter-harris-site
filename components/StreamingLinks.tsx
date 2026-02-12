@@ -63,7 +63,7 @@ export default function StreamingLinks({
   // Show "Coming Soon" badge if no streaming links available
   if (platforms.length === 0) {
     return (
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         <motion.div
           key={releaseId || "coming-soon"}
           className={`flex items-center ${alignClass}`}
@@ -81,7 +81,7 @@ export default function StreamingLinks({
   }
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="popLayout">
       <motion.div
         key={releaseId || "links"}
         className={`flex ${

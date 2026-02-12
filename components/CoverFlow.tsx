@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useMotionValue, animate } from "framer-motion";
-import { useState, useEffect, useCallback, useMemo, forwardRef, useImperativeHandle } from "react";
+import { useState, useEffect, useCallback, useMemo, forwardRef, useImperativeHandle, useRef } from "react";
 import type { Release } from "@/lib/types";
 import CoverFlowItem from "./CoverFlowItem";
 
@@ -28,6 +28,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
   initialIndex = 0,
 }, ref) => {
   const [activeIndex, setActiveIndex] = useState(initialIndex);
+  const activeIndexRef = useRef(activeIndex);
   const [introPhase, setIntroPhase] = useState<IntroPhase>('loading');
   const [isDragging, setIsDragging] = useState(false);
   const xPosition = useMotionValue(initialIndex);
@@ -79,6 +80,11 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
     };
   }, [prefersReducedMotion, onIntroPhaseChange]);
 
+  // Keep ref in sync with state
+  useEffect(() => {
+    activeIndexRef.current = activeIndex;
+  }, [activeIndex]);
+
   // Update active index and notify parent
   const updateActiveIndex = useCallback(
     (newIndex: number) => {
@@ -103,7 +109,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
         mass: 1.0,
         onUpdate: (latest) => {
           const snappedIndex = Math.round(latest);
-          if (normalizeIndex(snappedIndex) !== activeIndex) {
+          if (normalizeIndex(snappedIndex) !== activeIndexRef.current) {
             updateActiveIndex(snappedIndex);
           }
         },
@@ -113,14 +119,14 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
         },
       });
     },
-    [isDragging, introPhase, updateActiveIndex, xPosition, activeIndex, normalizeIndex]
+    [isDragging, introPhase, updateActiveIndex, xPosition, normalizeIndex]
   );
 
   // Calculate target based on velocity for momentum
   const calculateMomentumTarget = useCallback(
     (velocity: number, currentIndex: number) => {
       // Very high thresholds to reduce sensitivity
-      const velocityFactor = Math.abs(velocity) / 1800; // Increased from 1200
+      const velocityFactor = Math.abs(velocity) / 1200;
 
       let itemCount = 0;
       if (velocityFactor < 1) itemCount = 1;      // Gentle: 1 item
@@ -145,9 +151,11 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
     // Snap to nearest integer to prevent drift
     const current = Math.round(xPosition.get());
     xPosition.set(current);
+    // Resync activeIndex to match snapped position after stopping animation
+    updateActiveIndex(current);
     // Capture starting position for this drag
     dragStartPosition.set(current);
-  }, [xPosition, dragStartPosition, introPhase]);
+  }, [xPosition, dragStartPosition, introPhase, updateActiveIndex]);
 
   // Handle pan - real-time 1:1 tracking
   const handlePan = useCallback(
@@ -166,11 +174,11 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
 
       // Update active index as user drags past items
       const snappedIndex = Math.round(newPosition);
-      if (normalizeIndex(snappedIndex) !== activeIndex) {
+      if (normalizeIndex(snappedIndex) !== activeIndexRef.current) {
         updateActiveIndex(snappedIndex);
       }
     },
-    [isDragging, activeIndex, xPosition, dragStartPosition, updateActiveIndex, normalizeIndex]
+    [isDragging, xPosition, dragStartPosition, updateActiveIndex, normalizeIndex]
   );
 
   // Handle pan end with momentum
@@ -186,7 +194,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
 
       // If drag distance is small (< 0.4 items) OR velocity is low, just snap to nearest
       // This prevents accidental flicks when user just taps or barely moves
-      if (dragDistance < 0.4 || Math.abs(info.velocity.y) < 800) {
+      if (dragDistance < 0.4 && Math.abs(info.velocity.y) < 400) {
         targetIndex = Math.round(currentPosition);
       } else {
         // Use momentum for larger, faster drags
@@ -204,7 +212,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
         velocity: info.velocity.y / 150,
         onUpdate: (latest) => {
           const snappedIndex = Math.round(latest);
-          if (normalizeIndex(snappedIndex) !== activeIndex) {
+          if (normalizeIndex(snappedIndex) !== activeIndexRef.current) {
             updateActiveIndex(snappedIndex);
           }
         },
@@ -215,7 +223,7 @@ const CoverFlow = forwardRef<CoverFlowRef, CoverFlowProps>(({
         },
       });
     },
-    [activeIndex, xPosition, dragStartPosition, calculateMomentumTarget, updateActiveIndex, normalizeIndex]
+    [xPosition, dragStartPosition, calculateMomentumTarget, updateActiveIndex, normalizeIndex]
   );
 
   // Expose navigateToIndex and pan handlers to parent via ref
